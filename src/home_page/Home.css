@@ -2,3 +2,52 @@
 
 .Home {
 }
+.Content {
+    font-family: "Varela Round", serif;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    align-items: flex-end;
+}
+.OpponentLogo {
+    width: 15vh;
+    height: 15vh;
+    align-self: center;
+}
+.GameCard {
+    display: flex;
+    width: 80vw;
+    height: 22.5vh;
+    background-color: #d5d5d5;
+    justify-content: right;
+    margin-right: 10vw;
+    margin-top: 5vh;
+    border-radius: 15px;
+    flex-direction: row-reverse;
+
+}
+.NextGameText {
+    text-align: right;
+    direction: rtl;
+    margin-right: 5vw;
+    margin-top: 5vh;
+    color: black;
+    font-size: 24px;
+}
+.GameInfo{
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    direction: rtl;
+    margin-right: 1vw;
+}
+.GameInfo text{
+    font-size: 16px;
+    margin-top: 0.75vh;
+}
+.OpponentName {
+    margin-bottom: 0.5vh;
+}
