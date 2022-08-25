@@ -2,6 +2,7 @@
 
 .Home {
 }
+
 .Content {
     font-family: "Varela Round", serif;
     display: flex;
@@ -12,23 +13,24 @@
     background-color: white;
     align-items: flex-end;
 }
+
 .OpponentLogo {
     width: 15vh;
     height: 15vh;
     align-self: center;
 }
+
 .GameCard {
     display: flex;
-    width: 80vw;
-    height: 22.5vh;
     background-color: #d5d5d5;
     justify-content: right;
-    margin-right: 10vw;
     margin-top: 5vh;
     border-radius: 15px;
     flex-direction: row-reverse;
+    align-self: center;
 
 }
+
 .NextGameText {
     text-align: right;
     direction: rtl;
@@ -37,17 +39,36 @@
     color: black;
     font-size: 24px;
 }
-.GameInfo{
+
+.GameInfo {
     display: flex;
     flex-direction: column;
     text-align: right;
     direction: rtl;
     margin-right: 1vw;
+    margin-left: 5vw;
+    margin-bottom: 2vh;
 }
-.GameInfo text{
+
+.GameInfo p {
     font-size: 16px;
     margin-top: 0.75vh;
 }
+
 .OpponentName {
     margin-bottom: 0.5vh;
 }
+
+.RegisterButton {
+    align-self: center;
+    margin-top: 6vh;
+    border: 0;
+    background-color: #df1d22;
+    color: white;
+    border-radius: 15px;
+    font-size: 24px;
+    padding: 2vh;
+    font-family: "Varela Round", serif;
+}
+
+
