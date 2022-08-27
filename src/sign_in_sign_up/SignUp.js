@@ -6,8 +6,9 @@ import {
   sendEmailVerification,
   updateProfile,
 } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { app } from "../firebase";
+import { AuthenticatedUserContext } from "../UserProvider";
 
 const auth = getAuth(app);
 auth.languageCode = "iw";
@@ -19,6 +20,7 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [usernameError, setUsernameError] = useState(false);
+  const { user, setUser } = useContext(AuthenticatedUserContext);
 
   const closeSignUp = () => {
     setSignUpDialogOpen(false);
@@ -70,6 +72,19 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
     return () => {
       document.removeEventListener("keydown", keyDownHandler);
     };
+  });
+
+  // Handle user state changes
+  async function onAuthStateChanged(authenticatedUser) {
+    if (authenticatedUser) {
+      setUser(authenticatedUser);
+    } else {
+      setUser(null);
+    }
+  }
+
+  useEffect(() => {
+    return auth.onAuthStateChanged(onAuthStateChanged); // unsubscribe on unmount
   });
 
   return (

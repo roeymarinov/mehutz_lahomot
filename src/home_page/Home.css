@@ -7,9 +7,6 @@
     font-family: "Varela Round", serif;
     display: flex;
     flex-direction: column;
-    position: fixed;
-    height: 100%;
-    width: 100%;
     background-color: white;
     align-items: flex-end;
 }
@@ -62,6 +59,7 @@
 .RegisterButton {
     align-self: center;
     margin-top: 6vh;
+    margin-bottom: 6vh;
     border: 0;
     background-color: #df1d22;
     color: white;
