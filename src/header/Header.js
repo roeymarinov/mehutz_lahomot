@@ -3,7 +3,7 @@ import logo from "../assets/mehutz_lahomot_logo.png";
 import SignInSignUp from "../sign_in_sign_up/SignIn";
 import SignUp from "../sign_in_sign_up/SignUp";
 import { useContext, useState } from "react";
-import { AuthenticatedUserContext } from "../UserProvider";
+import { AuthenticatedUserContext } from "../utils/UserProvider";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Menu, MenuItem } from "@mui/material";
 import { getAuth, signOut } from "firebase/auth";

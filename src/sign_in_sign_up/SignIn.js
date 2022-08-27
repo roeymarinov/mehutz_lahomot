@@ -2,7 +2,7 @@ import { Dialog, TextField } from "@mui/material";
 import "./SignInSignUp.css";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { app } from "../firebase";
+import { app } from "../utils/firebase";
 
 const auth = getAuth(app);
 

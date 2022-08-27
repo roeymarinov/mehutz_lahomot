@@ -7,8 +7,8 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useContext, useEffect, useState } from "react";
-import { app } from "../firebase";
-import { AuthenticatedUserContext } from "../UserProvider";
+import { app } from "../utils/firebase";
+import { AuthenticatedUserContext } from "../utils/UserProvider";
 
 const auth = getAuth(app);
 auth.languageCode = "iw";
