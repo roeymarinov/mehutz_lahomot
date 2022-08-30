@@ -1,6 +1,6 @@
 import "./Home.css";
-import Header from "../header/Header";
 import eilatLogo from "../assets/logo_eilat.png";
+import { Link } from "react-router-dom";
 
 function Home() {
   const opponentName = "הפועל אילת";
@@ -12,10 +12,9 @@ function Home() {
 
   return (
     <div className="Home">
-      <Header />
-      <div className="Content">
-        <p className="NextGameText">ההסעה הבאה:</p>
-        <div className="GameCard">
+      <p className="ContentSubtitle">ההסעה הבאה:</p>
+      <div className="GameCard">
+        <div className="LogoInfo">
           <img className="OpponentLogo" src={eilatLogo} alt="opponent logo" />
           <div className="GameInfo">
             <h3 className="OpponentName">{opponentName}</h3>
@@ -27,7 +26,26 @@ function Home() {
             <p>{court}</p>
           </div>
         </div>
-        <button className="RegisterButton">הרשמה להסעה</button>
+        <Link className="RegisterButtonLink" to="bus">
+          <button className="RegisterButton">הרשמה להסעה</button>
+        </Link>
+      </div>
+      <p className="ContentSubtitle">מסלול:</p>
+      <div className="GameCard">
+        <ul>
+          <li>רכבת מרכז</li>
+          <li>חניון שפירים (הנתיב המהיר)</li>
+          <li>צומת שילת</li>
+          <li>פיס ארנה</li>
+        </ul>
+      </div>
+      <p className="ContentSubtitle">מחירון:</p>
+      <div className="GameCard">
+        <ul>
+          <li>כיוון אחד - ₪20</li>
+          <li>כיוון אחד (צומת שילת) - ₪15</li>
+          <li>מנוי שנתי - ₪370</li>
+        </ul>
       </div>
     </div>
   );

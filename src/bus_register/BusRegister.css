@@ -1,7 +1,7 @@
 @import url(https://fonts.googleapis.com/css2?family=Varela+Round);
 
 
-.Home {
+.BusRegister {
     font-family: "Varela Round", serif;
     display: flex;
     flex-direction: column;
@@ -10,63 +10,43 @@
     direction: rtl;
 }
 
-.OpponentLogo {
-    width: 15vh;
-    height: 15vh;
-    align-self: center;
-}
-
-.GameCard {
+.InfoCard {
     display: flex;
     background-color: #d5d5d5;
     justify-content: right;
-    margin-top: 1vh;
     border-radius: 15px;
+    align-self: flex-start;
     flex-direction: column;
-    align-self: center;
-    margin-bottom: 3vh;
+    text-align: right;
+    margin: 1vh 7vw;
 }
 
-.LogoInfo {
-    display: flex;
-    flex-direction: row;
-}
-
-.ContentSubtitle {
+.FormTitle {
     text-align: right;
     margin-right: 7vw;
-    margin-top: 3vh;
+    margin-top: 0;
+    margin-bottom: 0;
     color: black;
     font-size: 24px;
-    direction: rtl;
 }
 
-.GameInfo {
-    display: flex;
-    flex-direction: column;
-    text-align: right;
-    margin-right: 1vw;
-    margin-left: 5vw;
-    margin-bottom: 2vh;
-}
-
-.GameInfo p {
+.InfoCard p {
     font-size: 16px;
     margin-top: 0;
-    margin-bottom: 1vh;
+    margin-right: 5vw;
+    margin-left: 5vw;
 }
 
-.OpponentName {
-    margin-bottom: 2vh;
-}
-.RegisterButtonLink {
-    align-self: center;
+.InfoCard div {
+    margin-top: 2vh;
+    margin-bottom: 0;
 }
 
-.RegisterButton {
+
+.SubmitButton {
     align-self: center;
-    margin-top: 0;
-    margin-bottom: 3vh;
+    margin-top: 6vh;
+    margin-bottom: 6vh;
     border: 0;
     background-color: #df1d22;
     color: white;
@@ -80,13 +60,4 @@
 .RegisterButton:hover {
     color: #e7e7e7;
 }
-
-.GameCard ul {
-    margin-left: 5vw;
-}
-
-.GameCard ul li {
-    margin-bottom: 1vh;
-}
-
 

@@ -7,6 +7,7 @@ import { AuthenticatedUserContext } from "../utils/UserProvider";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Menu, MenuItem } from "@mui/material";
 import { getAuth, signOut } from "firebase/auth";
+import { Link } from "react-router-dom";
 
 function Header() {
   const auth = getAuth();
@@ -45,10 +46,12 @@ function Header() {
   return (
     <div className="Header">
       <div className="MainHeader">
-        <div className="LogoTitle">
-          <img className="Logo" src={logo} alt="" />
-          <p className="Title">הסעות מחוץ לחומות</p>
-        </div>
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <div className="LogoTitle">
+            <img className="Logo" src={logo} alt="" />
+            <p className="Title">הסעות מחוץ לחומות</p>
+          </div>
+        </Link>
         {user ? (
           <button className="HeaderButton" onClick={clickProfile}>
             <AccountCircleOutlinedIcon

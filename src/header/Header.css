@@ -7,18 +7,22 @@
     background-color: #df1d22;
     color: white;
     font-family: "Varela Round", serif;
+    margin-bottom: 0;
+    direction: rtl;
 }
 .MainHeader {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     align-self: stretch;
     margin-top: 1vh;
+    direction: rtl;
 }
 
 .LogoTitle {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     align-items: center;
+    color: white;
 }
 
 .Logo {
@@ -42,7 +46,7 @@
     font-family: "Varela Round", serif;
     cursor: pointer;
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     align-items: center;
     justify-content: flex-start;
     margin-right: auto;
@@ -66,6 +70,5 @@
 }
 
 .MuiMenuItem-root {
-    direction: rtl;
     font-family: "Varela Round", serif;
 }

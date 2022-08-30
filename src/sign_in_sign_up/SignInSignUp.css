@@ -11,7 +11,7 @@
 }
 
 .DialogTitle {
-    align-self: flex-end;
+    align-self: flex-start;
     font-size: 1.5em;
     margin-right: 10px;
     margin-top: 10px;
@@ -20,14 +20,12 @@
 .NoUserText {
     display: flex;
     flex-direction: row;
-    direction: rtl;
     align-self: center;
     margin: 10px 20px;
 }
 
 .MuiTextField-root {
     align-self: center;
-    direction: rtl;
     width: 80%;
 }
 
