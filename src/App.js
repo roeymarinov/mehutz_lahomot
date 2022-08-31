@@ -10,6 +10,14 @@ const theme = createTheme({
     fontFamily: ["Varela Round"].join(","),
   },
   direction: "rtl",
+  palette: {
+    primary: {
+      main: "#000000",
+    },
+    neutral: {
+      main: "#df1d22",
+    },
+  },
 });
 
 function App() {

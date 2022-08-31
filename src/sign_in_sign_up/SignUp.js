@@ -1,5 +1,5 @@
 import { Dialog, TextField } from "@mui/material";
-import "./SignInSignUp.css";
+import "../styles.css";
 import {
   getAuth,
   createUserWithEmailAndPassword,

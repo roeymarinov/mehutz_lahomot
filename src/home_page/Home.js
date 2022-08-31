@@ -1,4 +1,4 @@
-import "./Home.css";
+import "../styles.css";
 import eilatLogo from "../assets/logo_eilat.png";
 import { Link } from "react-router-dom";
 
@@ -12,7 +12,7 @@ function Home() {
 
   return (
     <div className="Home">
-      <p className="ContentSubtitle">ההסעה הבאה:</p>
+      <p className="ContentSubtitle">ההסעה הקרובה:</p>
       <div className="GameCard">
         <div className="LogoInfo">
           <img className="OpponentLogo" src={eilatLogo} alt="opponent logo" />
@@ -27,7 +27,7 @@ function Home() {
           </div>
         </div>
         <Link className="RegisterButtonLink" to="bus">
-          <button className="RegisterButton">הרשמה להסעה</button>
+          <button className="RegisterButton">לפרטים והרשמה</button>
         </Link>
       </div>
       <p className="ContentSubtitle">מסלול:</p>

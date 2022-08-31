@@ -1,12 +1,17 @@
-import "./BusRegister.css";
+import "../styles.css";
 import {
   TextField,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import { useState } from "react";
+import SubmitDialog from "./SubmitDialog";
 
 function BusRegister() {
   const opponentName = "הפועל אילת";
@@ -14,14 +19,17 @@ function BusRegister() {
   const busTime = "18:00";
   const gameDate = "12/11";
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [numPassengers, setNumPassengers] = useState("");
-  const [station, setStation] = useState("");
+  const [boardingStation, setBoardingStation] = useState("רכבת מרכז");
+  const [alightingStation, setAlightingStation] = useState("רכבת מרכז");
 
-  const [usernameError, setUsernameError] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   const [emailError, setEmailError] = useState(false);
+
+  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
+
   return (
     <div className="BusRegister">
       <div className="FormTitle">
@@ -34,24 +42,78 @@ function BusRegister() {
         <div>
           <p>שעת המשחק: {gameTime}</p>
           <p>יציאה מרכבת מרכז: {busTime}</p>
-          <p>₪20/₪15</p>
+          <p>₪20/₪15 לכיוון</p>
         </div>
       </div>
-      {/*<div className="InfoCard">*/}
-      {/*  <ul>*/}
-      {/*    <li>*/}
-      {/*      ההסעה יוצאת מרכבת מרכז בתל אביב ועוצרת גם בחניון שפירים (הנתיב*/}
-      {/*      המהיר) ובצומת שילת (מודיעין)*/}
-      {/*    </li>*/}
-      {/*    <li>ההסעה יוצאת בזמן - אין המתנה למאחרים</li>*/}
-      {/*    <li>מחיר - 15 ש"ח לכיוון, או מנוי שנתי ב-400 ש"ח</li>*/}
-      {/*    <li>תשלום דרך פייבוקס</li>*/}
-      {/*    <li>לשאלות, נא לפנות לניב - 0503511920</li>*/}
-      {/*  </ul>*/}
-      {/*</div>*/}
-      <div dir="rtl" lang="he">
-        <FormControl fullWidth>
+      <div className="BusForm" dir="rtl" lang="he">
+        <FormControl>
+          <FormLabel id="demo-radio-buttons-group-label">
+            תחנת עלייה (בהלוך)
+          </FormLabel>
+          <RadioGroup
+            aria-labelledby="demo-radio-buttons-group-label"
+            defaultValue="רכבת מרכז"
+            className="ChooseStation"
+            onChange={(event) => {
+              setBoardingStation(event.target.value);
+            }}
+          >
+            <FormControlLabel
+              value="רכבת מרכז"
+              control={<Radio />}
+              label="רכבת מרכז (₪20)"
+            />
+            <FormControlLabel
+              value="חניון שפירים"
+              control={<Radio />}
+              label="חניון שפירים - הנתיב המהיר (₪20)"
+            />
+            <FormControlLabel
+              value="צומת שילת"
+              control={<Radio />}
+              label="צומת שילת (₪15)"
+            />
+            <FormControlLabel
+              value="אני נוסע/ת רק חזור"
+              control={<Radio />}
+              label="אני נוסע/ת רק חזור"
+            />
+          </RadioGroup>
+          <FormLabel id="alighting-station-radio-buttons-group">
+            תחנת ירידה (בחזור)
+          </FormLabel>
+          <RadioGroup
+            aria-labelledby="alighting-station-radio-buttons-group"
+            defaultValue="רכבת מרכז"
+            className="ChooseStation"
+            onChange={(event) => {
+              setAlightingStation(event.target.value);
+            }}
+          >
+            <FormControlLabel
+              value="רכבת מרכז"
+              control={<Radio />}
+              label="רכבת מרכז (₪20)"
+            />
+            <FormControlLabel
+              value="חניון שפירים"
+              control={<Radio />}
+              label="חניון שפירים - הנתיב המהיר (₪20)"
+            />
+            <FormControlLabel
+              value="צומת שילת"
+              control={<Radio />}
+              label="צומת שילת (₪15)"
+            />
+            <FormControlLabel
+              value="אני נוסע/ת רק הלוך"
+              control={<Radio />}
+              label="אני נוסע/ת רק הלוך"
+            />
+          </RadioGroup>
+
           <Select
+            className="NumPassengers"
             value={numPassengers}
             label=""
             displayEmpty
@@ -63,62 +125,70 @@ function BusRegister() {
             <MenuItem value={1}>1</MenuItem>
             <MenuItem value={2}>2</MenuItem>
             <MenuItem value={3}>3</MenuItem>
-            <MenuItem value={3}>4</MenuItem>
-            <MenuItem value={3}>5</MenuItem>
-            {/*<MenuItem value={3}>6</MenuItem>*/}
-            {/*<MenuItem value={3}>7</MenuItem>*/}
-            {/*<MenuItem value={3}>8</MenuItem>*/}
-            {/*<MenuItem value={3}>9</MenuItem>*/}
-            {/*<MenuItem value={3}>10</MenuItem>*/}
+            <MenuItem value={4}>4</MenuItem>
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={6}>6</MenuItem>
+            <MenuItem value={7}>7</MenuItem>
+            <MenuItem value={8}>8</MenuItem>
+            <MenuItem value={9}>9</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
           </Select>
-          <Select
-            value={station}
-            label=""
-            displayEmpty
+          <TextField
+            placeholder="שם מלא"
+            margin="dense"
+            required={true}
+            autoComplete="off"
             onChange={(event) => {
-              setStation(event.target.value);
+              setName(event.target.value);
             }}
-          >
-            <MenuItem value="">תחנת עלייה</MenuItem>
-            <MenuItem value="רכבת מרכז">רכבת מרכז</MenuItem>
-            <MenuItem value="חניון שפירים (הנתיב המהיר)">
-              חניון שפירים (הנתיב המהיר)
-            </MenuItem>
-            <MenuItem value="צומת שילת">צומת שילת</MenuItem>
-          </Select>
+          />
+          <TextField
+            placeholder="מייל"
+            margin="dense"
+            required={true}
+            autoComplete="off"
+            error={emailError}
+            onChange={(event) => {
+              setEmail(event.target.value);
+            }}
+          />
+          <TextField
+            placeholder="טלפון נייד"
+            margin="dense"
+            required={true}
+            autoComplete="off"
+            error={phoneError}
+            onChange={(event) => {
+              setPhone(event.target.value);
+            }}
+          />
         </FormControl>
       </div>
-      <TextField
-        placeholder="שם"
-        margin="dense"
-        required={true}
-        autoComplete="off"
-        error={usernameError}
-        onChange={(event) => {
-          setUsername(event.target.value);
+
+      <button
+        className="SubmitButton"
+        onClick={() => setSubmitDialogOpen(true)}
+      >
+        המשך
+      </button>
+      <SubmitDialog
+        setSubmitDialogOpen={setSubmitDialogOpen}
+        submitDialogOpen={submitDialogOpen}
+        personalDetails={{
+          name: name,
+          alightingStation: alightingStation,
+          boardingStation: boardingStation,
+          numPassengers: numPassengers,
+          email: email,
+          phone: phone,
+        }}
+        busDetails={{
+          opponentName: opponentName,
+          gameDate: gameDate,
+          gameTime: gameTime,
+          busTime: busTime,
         }}
       />
-      <TextField
-        placeholder="מייל"
-        margin="dense"
-        required={true}
-        autoComplete="off"
-        error={emailError}
-        onChange={(event) => {
-          setEmail(event.target.value);
-        }}
-      />
-      <TextField
-        placeholder="טלפון נייד"
-        margin="dense"
-        required={true}
-        autoComplete="off"
-        error={phoneError}
-        onChange={(event) => {
-          setPhone(event.target.value);
-        }}
-      />
-      <button className="SubmitButton">הרשמה</button>
     </div>
   );
 }
