@@ -1,5 +1,5 @@
 import { Dialog, TextField } from "@mui/material";
-import "../styles.css";
+import "../utils/styles.css";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -7,8 +7,9 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useContext, useEffect, useState } from "react";
-import { app } from "../utils/firebase";
+import { app, db } from "../utils/firebase";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const auth = getAuth(app);
 auth.languageCode = "iw";
@@ -27,24 +28,28 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
   };
 
   const signUp = () => {
-    console.log(email, password, username);
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
-        console.log(user);
         updateProfile(auth.currentUser, {
           displayName: username,
         })
           .then(() => {
             // Profile updated!
             // ...
-            console.log(auth.currentUser.displayName);
-            sendEmailVerification(auth.currentUser).then(() => {
-              // Email verification sent!
-              // ...
-              console.log(auth.currentUser.emailVerified);
-              closeSignUp();
+            // Add a new document with a generated id.
+            setDoc(doc(db, "Users", user.uid), {
+              username: username,
+              email: email,
+              admin: false,
+              preferences: {},
+            }).then(() => {
+              sendEmailVerification(auth.currentUser).then(() => {
+                // Email verification sent!
+                // ...
+                closeSignUp();
+              });
             });
           })
           .catch((error) => {
@@ -76,9 +81,19 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
 
   // Handle user state changes
   async function onAuthStateChanged(authenticatedUser) {
-    if (authenticatedUser) {
-      setUser(authenticatedUser);
-    } else {
+    if (authenticatedUser && !user) {
+      let displayAsAdmin = false;
+      const docRef = doc(db, "Users", authenticatedUser.uid);
+      getDoc(docRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          displayAsAdmin = docSnap.data().admin;
+        } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+        }
+        setUser({ ...authenticatedUser, displayAsAdmin: displayAsAdmin });
+      });
+    } else if (!authenticatedUser) {
       setUser(null);
     }
   }

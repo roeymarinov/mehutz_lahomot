@@ -4,6 +4,9 @@ import { createTheme, ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from "./header/Header";
 import BusRegister from "./bus_register/BusRegister";
+import AddBus from "./add_bus/AddBus";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const theme = createTheme({
   typography: {
@@ -22,17 +25,24 @@ const theme = createTheme({
 
 function App() {
   return (
-    <Router>
-      <ThemeProvider theme={theme}>
-        <AuthenticatedUserProvider>
-          <Header />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="bus" element={<BusRegister />} />
-          </Routes>
-        </AuthenticatedUserProvider>
-      </ThemeProvider>
-    </Router>
+    <LocalizationProvider
+      //adapterLocale="he"
+      // localeText={{ locale: "he" }}
+      dateAdapter={AdapterDayjs}
+    >
+      <Router>
+        <ThemeProvider theme={theme}>
+          <AuthenticatedUserProvider>
+            <Header />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="bus" element={<BusRegister />} />
+              <Route path="add_bus" element={<AddBus />} />
+            </Routes>
+          </AuthenticatedUserProvider>
+        </ThemeProvider>
+      </Router>
+    </LocalizationProvider>
   );
 }
 

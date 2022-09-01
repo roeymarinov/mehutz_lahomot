@@ -1,4 +1,4 @@
-import "../styles.css";
+import "../utils/styles.css";
 import logo from "../assets/mehutz_lahomot_logo.png";
 import SignInSignUp from "../sign_in_sign_up/SignIn";
 import SignUp from "../sign_in_sign_up/SignUp";
@@ -64,7 +64,6 @@ function Header() {
           <button
             className="HeaderButton"
             onClick={() => {
-              console.log("Sign in!");
               setSignInDialogOpen(true);
             }}
           >

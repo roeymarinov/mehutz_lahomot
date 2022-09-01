@@ -1,5 +1,5 @@
 import { Dialog, TextField } from "@mui/material";
-import "../styles.css";
+import "../utils/styles.css";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { app } from "../utils/firebase";
@@ -17,13 +17,10 @@ function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
   };
 
   const signIn = () => {
-    console.log(email, password);
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
-        console.log(user);
-        console.log(auth.currentUser.emailVerified);
         closeSignIn();
       })
       .catch((error) => {

@@ -278,8 +278,7 @@
 
 .SubmitButton {
     align-self: center;
-    margin-top: 3vh;
-    margin-bottom: 3vh;
+    margin: 3vh 1vw;
     border: 0;
     background-color: #df1d22;
     color: white;
@@ -303,4 +302,39 @@
 .AttentionDetails {
     margin-top: 0;
     margin-left: 5vw;
+}
+
+.ConfirmCancel {
+    display: flex;
+    flex-direction: row;
+}
+
+.LoadingDialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ height: 100px;
+    width: 100px;
+}
+
+.SuccessMessage {
+    text-align: center;
+    margin-right: 3vw;
+    margin-left: 3vw;
+    margin-bottom: 0;
+    font-size: 1.5em;
+    line-height: 1.75;
+}
+
+.MenuItemLogo {
+    height: 50px;
+    width: 50px;
+    margin-left: 2vw;
+}
+.AddBusInput {
+    margin-bottom: 0;
+}
+.OpponentMenuItem {
+    display: flex;
+    flex-direction: row;
 }

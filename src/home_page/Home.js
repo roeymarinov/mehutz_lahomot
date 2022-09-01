@@ -1,6 +1,10 @@
-import "../styles.css";
+import "../utils/styles.css";
 import eilatLogo from "../assets/logo_eilat.png";
 import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../utils/firebase";
+import { AuthenticatedUserContext } from "../utils/UserProvider";
 
 function Home() {
   const opponentName = "הפועל אילת";
@@ -9,6 +13,20 @@ function Home() {
   const gameDate = "12/11";
   const gameDay = "יום שני";
   const court = "פיס ארנה";
+  // const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
+  const { user, setUser } = useContext(AuthenticatedUserContext);
+  // if (user) {
+  //     const docRef = doc(db, "Users", user.uid);
+  //     getDoc(docRef).then((docSnap) => {
+  //         if (docSnap.exists()) {
+  //             setDisplayAsAdmin(docSnap.data().admin);
+  //         } else {
+  //             // doc.data() will be undefined in this case
+  //             console.log("No such document!");
+  //         }
+  //     });
+  // }
+  const displayAsAdmin = user ? user.displayAsAdmin : false;
 
   return (
     <div className="Home">
@@ -30,6 +48,13 @@ function Home() {
           <button className="RegisterButton">לפרטים והרשמה</button>
         </Link>
       </div>
+      {displayAsAdmin && <p className="ContentSubtitle">הסעות נוספות:</p>}
+      {displayAsAdmin && (
+        <Link className="RegisterButtonLink" to="add_bus">
+          <button className="RegisterButton">הוספת הסעה</button>
+        </Link>
+      )}
+
       <p className="ContentSubtitle">מסלול:</p>
       <div className="GameCard">
         <ul>

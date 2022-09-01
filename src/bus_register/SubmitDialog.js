@@ -1,5 +1,6 @@
-import "../styles.css";
+import "../utils/styles.css";
 import {
+  CircularProgress,
   Dialog,
   Paper,
   Table,
@@ -8,7 +9,10 @@ import {
   TableContainer,
   TableRow,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { db } from "../utils/firebase";
+import { Link } from "react-router-dom";
 
 function SubmitDialog({
   submitDialogOpen,
@@ -17,15 +21,36 @@ function SubmitDialog({
   busDetails,
 }) {
   const [confirmedDetails, setConfirmedDetails] = useState(false);
+  const [registeredSuccessfully, setRegisteredSuccessfully] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const closeSubmit = () => {
-    setSubmitDialogOpen(false);
-    setConfirmedDetails(false);
+    if (!registeredSuccessfully) {
+      setSubmitDialogOpen(false);
+      setConfirmedDetails(false);
+    }
+  };
+
+  const registerToBus = async () => {
+    setLoading(true);
+    const busRef = doc(db, "Buses", "Vu6SMFN0XRcPZ1Q9KlS3");
+
+    // Set the "capital" field of the city 'DC'
+    await updateDoc(busRef, {
+      registered_users: arrayUnion(personalDetails),
+    });
+    setRegisteredSuccessfully(true);
+    setLoading(false);
   };
 
   return (
     <Dialog open={submitDialogOpen} onClose={closeSubmit}>
-      {!confirmedDetails && (
+      {loading && (
+        <div className="LoadingDialog">
+          <CircularProgress />
+        </div>
+      )}
+      {!confirmedDetails && !registeredSuccessfully && !loading && (
         <div className="SubmitDialog">
           <div className="DialogTitle">
             <p>סיכום פרטים</p>
@@ -99,15 +124,20 @@ function SubmitDialog({
               </TableBody>
             </Table>
           </TableContainer>
-          <button
-            className="SubmitButton"
-            onClick={() => setConfirmedDetails(true)}
-          >
-            אישור והמשך
-          </button>
+          <div className={"ConfirmCancel"}>
+            <button
+              className="SubmitButton"
+              onClick={() => setConfirmedDetails(true)}
+            >
+              אישור והמשך
+            </button>
+            <button className="SubmitButton" onClick={closeSubmit}>
+              חזרה
+            </button>
+          </div>
         </div>
       )}
-      {confirmedDetails && (
+      {confirmedDetails && !registeredSuccessfully && !loading && (
         <div className="SubmitDialog">
           <p className="DialogTitle">שימו לב!</p>
           <ul className="AttentionDetails">
@@ -115,9 +145,26 @@ function SubmitDialog({
             <li>ההסעה חזור יוצאת מחניית השחקנים בארנה</li>
             <li>לשאלות ולפרטים נוספים ניתן לפנות לניב - 0503511920</li>
           </ul>
-          <button className="SubmitButton" onClick={closeSubmit}>
-            אישור והרשמה
-          </button>
+          <div className={"ConfirmCancel"}>
+            <button className="SubmitButton" onClick={registerToBus}>
+              אישור והרשמה
+            </button>
+            <button className="SubmitButton" onClick={closeSubmit}>
+              ביטול
+            </button>
+          </div>
+        </div>
+      )}
+      {registeredSuccessfully && !loading && (
+        <div className="SubmitDialog">
+          <p className="SuccessMessage">
+            נרשמתם בהצלחה! מייל עם הפרטים יישלח לכתובת {personalDetails.email}
+          </p>
+          <Link to="/">
+            <button className="SubmitButton" onClick={() => {}}>
+              למסך הבית
+            </button>
+          </Link>
         </div>
       )}
     </Dialog>
