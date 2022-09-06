@@ -33,7 +33,7 @@ function SubmitDialog({
 
   const registerToBus = async () => {
     setLoading(true);
-    const busRef = doc(db, "Buses", "Vu6SMFN0XRcPZ1Q9KlS3");
+    const busRef = doc(db, "Buses", busDetails.busID);
 
     // Set the "capital" field of the city 'DC'
     await updateDoc(busRef, {

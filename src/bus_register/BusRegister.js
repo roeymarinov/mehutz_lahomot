@@ -12,12 +12,9 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import SubmitDialog from "./SubmitDialog";
+import { useLocation } from "react-router-dom";
 
 function BusRegister() {
-  const opponentName = "הפועל אילת";
-  const gameTime = "20:00";
-  const busTime = "18:00";
-  const gameDate = "12/11";
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -29,7 +26,8 @@ function BusRegister() {
   const [emailError, setEmailError] = useState(false);
 
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
-
+  const { state } = useLocation();
+  const { busTime, gameTime, gameDate, opponentName, busID } = state; // Read values passed on state
   return (
     <div className="BusRegister">
       <div className="FormTitle">
@@ -182,12 +180,7 @@ function BusRegister() {
           email: email,
           phone: phone,
         }}
-        busDetails={{
-          opponentName: opponentName,
-          gameDate: gameDate,
-          gameTime: gameTime,
-          busTime: busTime,
-        }}
+        busDetails={state}
       />
     </div>
   );

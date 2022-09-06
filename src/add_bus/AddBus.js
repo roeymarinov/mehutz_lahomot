@@ -123,6 +123,7 @@ function AddBus() {
             game_time: gameTime.toDate(),
             bus_time: busTime.toDate(),
             opponent: opponentName,
+            registered_users: [],
           })
         }
       >
