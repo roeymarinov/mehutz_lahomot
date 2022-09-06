@@ -22,6 +22,8 @@ function AddBus() {
   const [gameDate, setGameDate] = useState(dayjs());
   const [gameTime, setGameTime] = useState(dayjs());
   const [busTime, setBusTime] = useState(dayjs());
+  const [maxPassengers, setMaxPassengers] = useState(0);
+  const [maxPassengersError, setMaxPassengersError] = useState(false);
   const opponents = [
     { name: "הפועל חולון", logo: holonLogo },
     { name: "בני הרצליה", logo: hertzeliyaLogo },
@@ -61,7 +63,7 @@ function AddBus() {
 
             {opponents.map((opponent) => {
               return (
-                <MenuItem value={opponent.name}>
+                <MenuItem value={opponent.name} key={opponent.name}>
                   <div className="OpponentMenuItem">
                     <img
                       className="MenuItemLogo"
@@ -112,6 +114,19 @@ function AddBus() {
               renderInput={(params) => <TextField {...params} />}
             />
           </div>
+          <div className="AddBusInput">
+            <p>מס' נוסעים מקסימלי</p>
+            <TextField
+              placeholder={"הכנס מספר"}
+              margin="dense"
+              required={true}
+              autoComplete="off"
+              error={maxPassengersError}
+              onChange={(event) => {
+                setMaxPassengers(parseInt(event.target.value));
+              }}
+            />
+          </div>
         </FormControl>
       </div>
 
@@ -124,6 +139,8 @@ function AddBus() {
             bus_time: busTime.toDate(),
             opponent: opponentName,
             registered_users: [],
+            total_passengers: 0,
+            max_passengers: maxPassengers,
           })
         }
       >

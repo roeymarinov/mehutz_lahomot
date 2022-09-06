@@ -13,6 +13,8 @@ import {
 import { useState } from "react";
 import SubmitDialog from "./SubmitDialog";
 import { useLocation } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../utils/firebase";
 
 function BusRegister() {
   const [email, setEmail] = useState("");
@@ -28,6 +30,28 @@ function BusRegister() {
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const { state } = useLocation();
   const { busTime, gameTime, gameDate, opponentName, busID } = state; // Read values passed on state
+  const [availablePlaces, setAvailablePlaces] = useState(0);
+  const [numPassengersArray, setNumPassengersArray] = useState([0]);
+
+  const checkAvailablePlaces = async () => {
+    const busRef = doc(db, "Buses", state.busID);
+    const docSnap = await getDoc(busRef);
+    if (docSnap.exists()) {
+      const maxPassengers = docSnap.data().max_passengers;
+      const totalPassengers = docSnap.data().total_passengers;
+      if (totalPassengers < maxPassengers) {
+        setAvailablePlaces(maxPassengers - totalPassengers);
+      }
+    }
+  };
+  if (numPassengers === "") {
+    checkAvailablePlaces().then(() => {
+      setNumPassengersArray(
+        [...Array(Math.min(availablePlaces, 10) + 1).keys()].slice(1)
+      );
+    });
+  }
+
   return (
     <div className="BusRegister">
       <div className="FormTitle">
@@ -120,16 +144,13 @@ function BusRegister() {
             }}
           >
             <MenuItem value="">מס' נוסעים</MenuItem>
-            <MenuItem value={1}>1</MenuItem>
-            <MenuItem value={2}>2</MenuItem>
-            <MenuItem value={3}>3</MenuItem>
-            <MenuItem value={4}>4</MenuItem>
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={6}>6</MenuItem>
-            <MenuItem value={7}>7</MenuItem>
-            <MenuItem value={8}>8</MenuItem>
-            <MenuItem value={9}>9</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
+            {numPassengersArray.map((val) => {
+              return (
+                <MenuItem value={val} key={val}>
+                  {val}
+                </MenuItem>
+              );
+            })}
           </Select>
           <TextField
             placeholder="שם מלא"

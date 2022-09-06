@@ -54,6 +54,7 @@ function Home() {
         "/" +
         (parseInt(data.date.toDate().getMonth()) + 1).toString();
       const gameDay = data.date.toDate().getDay();
+      const isBusFull = data.total_passengers >= data.max_passengers;
       busesArray.push({
         opponentName: opponentName,
         gameDate: gameDate,
@@ -61,6 +62,7 @@ function Home() {
         gameDay: gameDay,
         busTime: busTime,
         busID: busID,
+        isBusFull: isBusFull,
       });
     });
     setBuses(busesArray);
@@ -140,11 +142,13 @@ function Home() {
           </div>
           <button
             className="RegisterButton"
+            disabled={buses[0].isBusFull}
             onClick={() => {
               navigate("/bus", { state: buses[0] });
             }}
           >
-            לפרטים והרשמה
+            {" "}
+            {buses[0].isBusFull ? "ההסעה מלאה" : "לפרטים והרשמה"}
           </button>
         </div>
       )}
@@ -175,11 +179,13 @@ function Home() {
               </div>
               <button
                 className="RegisterButton"
+                disabled={buses[0].isBusFull}
                 onClick={() => {
                   navigate("/bus", { state: buses[index] });
                 }}
               >
-                לפרטים והרשמה
+                {" "}
+                {buses[index].isBusFull ? "ההסעה מלאה" : "לפרטים והרשמה"}
               </button>
             </div>
           );

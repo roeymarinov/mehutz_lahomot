@@ -77,6 +77,11 @@
     cursor: pointer;
 }
 
+.RegisterButton:disabled{
+    color: #e7e7e7;
+    background-color: #c71c21;
+}
+
 .RegisterButton:hover {
     color: #e7e7e7;
 }

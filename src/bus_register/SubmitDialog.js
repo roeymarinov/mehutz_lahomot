@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { useState } from "react";
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { Link } from "react-router-dom";
 
@@ -23,6 +23,7 @@ function SubmitDialog({
   const [confirmedDetails, setConfirmedDetails] = useState(false);
   const [registeredSuccessfully, setRegisteredSuccessfully] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [tooManyPassengers, setTooManyPassengers] = useState(false);
 
   const closeSubmit = () => {
     if (!registeredSuccessfully) {
@@ -34,12 +35,24 @@ function SubmitDialog({
   const registerToBus = async () => {
     setLoading(true);
     const busRef = doc(db, "Buses", busDetails.busID);
+    const docSnap = await getDoc(busRef);
+    if (docSnap.exists()) {
+      const maxPassengers = docSnap.data().max_passengers;
+      const totalPassengers =
+        docSnap.data().total_passengers + personalDetails.numPassengers;
+      if (totalPassengers <= maxPassengers) {
+        await updateDoc(busRef, {
+          registered_users: arrayUnion(personalDetails),
+          total_passengers: totalPassengers,
+        });
+        setRegisteredSuccessfully(true);
+      } else {
+        setTooManyPassengers(true);
+      }
+    } else {
+      console.log("No such document!");
+    }
 
-    // Set the "capital" field of the city 'DC'
-    await updateDoc(busRef, {
-      registered_users: arrayUnion(personalDetails),
-    });
-    setRegisteredSuccessfully(true);
     setLoading(false);
   };
 
@@ -157,9 +170,15 @@ function SubmitDialog({
       )}
       {registeredSuccessfully && !loading && (
         <div className="SubmitDialog">
-          <p className="SuccessMessage">
-            נרשמתם בהצלחה! מייל עם הפרטים יישלח לכתובת {personalDetails.email}
-          </p>
+          {tooManyPassengers ? (
+            <p className="SuccessMessage">
+              אנו מצטערים, אך נגמרו המקומות להסעה זו
+            </p>
+          ) : (
+            <p className="SuccessMessage">
+              נרשמתם בהצלחה! מייל עם הפרטים יישלח לכתובת {personalDetails.email}
+            </p>
+          )}
           <Link to="/">
             <button className="SubmitButton" onClick={() => {}}>
               למסך הבית
