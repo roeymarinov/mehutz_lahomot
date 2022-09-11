@@ -179,7 +179,7 @@ function Home() {
               </div>
               <button
                 className="RegisterButton"
-                disabled={buses[0].isBusFull}
+                disabled={buses[index].isBusFull}
                 onClick={() => {
                   navigate("/bus", { state: buses[index] });
                 }}

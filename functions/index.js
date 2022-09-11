@@ -15,100 +15,63 @@ admin.initializeApp();
 const fs = require("fs").promises;
 const path = require("path");
 const process = require("process");
-const { authenticate } = require("@google-cloud/local-auth");
 const { google } = require("googleapis");
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
+//const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = path.join(process.cwd(), "token.json");
-const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
+//const TOKEN_PATH = path.join(process.cwd(), "token.json");
+const CREDENTIALS_PATH = path.join(
+  process.cwd(),
+  "mehutz-lahomot-7b68b8f7834c.json"
+);
 const { GoogleAuth } = require("google-auth-library");
 
 const auth = new GoogleAuth({
-  scopes: "https://www.googleapis.com/auth/spreadsheet",
+  keyFile: CREDENTIALS_PATH,
+  scopes: "https://www.googleapis.com/auth/spreadsheets",
 });
 
-const sheets = google.sheets({ version: "v4", auth });
 const SPREADSHEET_ID = "1MtUH4D3z4gNfcjiQVqFx96UHq74dRCYyBY_Q_VwxhFk";
-
-/**
- * Reads previously authorized credentials from the save file.
- *
- * @return {Promise<OAuth2Client|null>}
- */
-async function loadSavedCredentialsIfExist() {
-  try {
-    const content = await fs.readFile(TOKEN_PATH);
-    const credentials = JSON.parse(content);
-    return google.auth.fromJSON(credentials);
-  } catch (err) {
-    return null;
-  }
-}
-
-/**
- * Serializes credentials to a file comptible with GoogleAUth.fromJSON.
- *
- * @param {OAuth2Client} client
- * @return {Promise<void>}
- */
-async function saveCredentials(client) {
-  const content = await fs.readFile(CREDENTIALS_PATH);
-  const keys = JSON.parse(content);
-  const key = keys.installed || keys.web;
-  const payload = JSON.stringify({
-    type: "authorized_user",
-    client_id: key.client_id,
-    client_secret: key.client_secret,
-    refresh_token: client.credentials.refresh_token,
-  });
-  await fs.writeFile(TOKEN_PATH, payload);
-}
 
 /**
  * Load or request or authorization to call APIs.
  *
  */
 async function authorize() {
-  let client = await loadSavedCredentialsIfExist();
-  if (client) {
-    return client;
-  }
-  client = await authenticate({
-    scopes: SCOPES,
-    keyfilePath: CREDENTIALS_PATH,
-  });
-  if (client.credentials) {
-    await saveCredentials(client);
-  }
-  return client;
+  return await auth.getClient();
 }
 
-// async function updateSheet(auth, sheetName) {
-//   const res = await sheets.spreadsheets.values.get({
-//     spreadsheetId: "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
-//     range: "Class Data!A2:E",
-//   });
-//   const rows = res.data.values;
-//   if (!rows || rows.length === 0) {
-//     console.log("No data found.");
-//     return;
-//   }
-//   console.log("Name, Major:");
-//   rows.forEach((row) => {
-//     // Print columns A and E, which correspond to indices 0 and 4.
-//     console.log(`${row[0]}, ${row[4]}`);
-//   });
-// }
+async function updateValues(spreadsheetId, range, valueInputOption, values) {
+  const client = await authorize();
+  const sheets = google.sheets({ version: "v4", auth: client });
+
+  const resource = {
+    values,
+  };
+  try {
+    const result = await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range,
+      valueInputOption,
+      resource,
+    });
+    console.log("%d cells updated.", result.data.updatedCells);
+    return result;
+  } catch (err) {
+    console.log(err.message);
+  }
+}
 
 async function createBusSheet(spreadsheetId, title) {
+  const client = await authorize();
+  const sheets = google.sheets({ version: "v4", auth: client });
   const requests = [];
   // Change the spreadsheet's title.
   requests.push({
-    addSheetRequest: {
+    addSheet: {
       properties: {
         title: title,
         index: 0,
@@ -117,35 +80,47 @@ async function createBusSheet(spreadsheetId, title) {
     },
   });
 
-  const batchUpdateRequest = { requests };
   try {
-    const response = await sheets.spreadsheets.batchUpdate({
+    return await sheets.spreadsheets.batchUpdate({
       spreadsheetId,
-      resource: batchUpdateRequest,
+      requestBody: {
+        includeSpreadsheetInResponse: false,
+        requests: requests,
+        responseIncludeGridData: false,
+        responseRanges: [],
+      },
     });
-    const findReplaceResponse = response.data.replies[1].findReplace;
-    console.log(`${findReplaceResponse.occurrencesChanged} replacements made.`);
-    return response;
   } catch (err) {
-    // TODO (developer) - Handle exception
+    console.log("batchUpdate error");
     console.log(err.message);
   }
 }
 
-// exports.updateBusSheet = functions.firestore
-//   .document("/Buses/{documentId}")
-//   .onUpdate((change, context) => {
-//     authorize().then(updateSheet).catch(console.error);
-//
-//     // You must return a Promise when performing asynchronous tasks inside a Functions such as
-//     // writing to Firestore.
-//     // Setting an 'uppercase' field in Firestore document returns a Promise.
-//     return null;
-//   });
+async function appendRows(spreadsheetId, range, valueInputOption, values) {
+  const client = await authorize();
+  const service = google.sheets({ version: "v4", auth: client });
+  console.log("invoke appendRows");
+  const resource = {
+    values,
+  };
+  try {
+    const result = await service.spreadsheets.values.append({
+      spreadsheetId,
+      range,
+      valueInputOption,
+      resource,
+    });
+    console.log(`${result.data.updates.updatedCells} cells appended.`);
+    return result;
+  } catch (err) {
+    console.log(err.message);
+  }
+}
 
 exports.createNewBusSheet = functions.firestore
   .document("/Buses/{busId}")
   .onCreate((snap, context) => {
+    console.log("invoked createNewBusSheet");
     const data = snap.data();
     const title =
       data.opponent +
@@ -153,13 +128,114 @@ exports.createNewBusSheet = functions.firestore
       data.date.toDate().getDate() +
       "/" +
       (parseInt(data.date.toDate().getMonth()) + 1).toString();
+    const firstRow = [
+      [
+        "שם",
+        "מייל",
+        "טלפון",
+        "הלוך",
+        "חזור",
+        "חד פעמי",
+        "מנוי",
+        "מרכז",
+        "מהיר",
+        "שילת",
+        "שולם",
+      ],
+    ];
 
-    authorize()
+    const secondRow = [
+      ["סהכ מרכז"],
+      ["סהכ מהיר"],
+      ["סהכ שילת"],
+      ["סהכ נוסעים"],
+    ];
+    return authorize()
       .then(() => createBusSheet(SPREADSHEET_ID, title))
+      .then(() => {
+        appendRows(
+          SPREADSHEET_ID,
+          "'" + title + "'",
+          "USER_ENTERED",
+          firstRow
+        ).then(() =>
+          appendRows(
+            SPREADSHEET_ID,
+            "'" + title + "'!M:M",
+            "USER_ENTERED",
+            secondRow
+          )
+        );
+      })
       .catch(console.error);
 
     // You must return a Promise when performing asynchronous tasks inside a Functions such as
     // writing to Firestore.
-    // Setting an 'uppercase' field in Firestore document returns a Promise.
-    return null;
+  });
+
+exports.registerUser = functions.firestore
+  .document("/Buses/{documentId}")
+  .onUpdate((change, context) => {
+    const data = change.after.data();
+    const registeredUsersBefore = change.before.data().registered_users;
+    const registeredUsersAfter = change.after.data().registered_users;
+    const title =
+      data.opponent +
+      " " +
+      data.date.toDate().getDate() +
+      "/" +
+      (parseInt(data.date.toDate().getMonth()) + 1).toString();
+    const newUsers = registeredUsersAfter.filter(
+      (x) => !registeredUsersBefore.includes(x)
+    );
+    const totalPassengers = data.total_passengers;
+    return authorize()
+      .then(() => {
+        newUsers.forEach((userDetails) => {
+          const name = userDetails.name;
+          const phone = userDetails.phone;
+          const email = userDetails.email;
+          const haloch =
+            userDetails.boardingStation !== "אני נוסע/ת רק חזור"
+              ? userDetails.numPassengers
+              : "0";
+          const hazor =
+            userDetails.alightingStation !== "אני נוסע/ת רק הלוך"
+              ? userDetails.numPassengers
+              : "0";
+          const oneTime = userDetails.numPassengers; // TODO: change!!
+          const member = "0"; // TODO: change!!
+          const merkaz = "?"; // TODO: change!!
+          const mahir = "?"; // TODO: change!!
+          const shilat = "?"; // TODO: change!!
+          const paid = "-"; // TODO: change!!
+          const row = [
+            [
+              name,
+              email,
+              phone,
+              haloch,
+              hazor,
+              oneTime,
+              member,
+              merkaz,
+              mahir,
+              shilat,
+              paid,
+            ],
+          ];
+          appendRows(SPREADSHEET_ID, "'" + title + "'!A:K", "RAW", row).catch(
+            console.error
+          );
+        });
+      })
+      .then(() =>
+        updateValues(SPREADSHEET_ID, "'" + title + "'!N4:N4", "USER_ENTERED", [
+          [totalPassengers.toString()],
+        ])
+      )
+      .catch(console.error);
+
+    // You must return a Promise when performing asynchronous tasks inside a Functions such as
+    // writing to Firestore.
   });
