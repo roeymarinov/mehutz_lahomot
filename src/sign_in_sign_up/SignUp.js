@@ -1,4 +1,4 @@
-import { Dialog, TextField } from "@mui/material";
+import { Dialog, IconButton, InputAdornment, TextField } from "@mui/material";
 import "../utils/styles.css";
 import {
   getAuth,
@@ -6,18 +6,21 @@ import {
   sendEmailVerification,
   updateProfile,
 } from "firebase/auth";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { app, db } from "../utils/firebase";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import * as yup from "yup";
 import { useFormik } from "formik";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const auth = getAuth(app);
 auth.languageCode = "iw";
 
 function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
   const { user, setUser } = useContext(AuthenticatedUserContext);
+  const [showPassword, setShowPassword] = useState(false);
+
   const validationSchema = yup.object({
     email: yup
       .string()
@@ -143,14 +146,26 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
           autoComplete="off"
           value={formik.values.password}
           error={formik.touched.password && Boolean(formik.errors.password)}
-          type="password"
+          type={showPassword ? "text" : "password"}
           onChange={formik.handleChange}
           helperText={formik.touched.password && formik.errors.password}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           id="confirmPassword"
           name="confirmPassword"
-          placeholder="אישור סיסמה"
+          placeholder="אימות סיסמה"
           margin="dense"
           autoComplete="off"
           value={formik.values.confirmPassword}
@@ -158,11 +173,23 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
             formik.touched.confirmPassword &&
             Boolean(formik.errors.confirmPassword)
           }
-          type="password"
+          type={showPassword ? "text" : "password"}
           onChange={formik.handleChange}
           helperText={
             formik.touched.confirmPassword && formik.errors.confirmPassword
           }
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           id="username"

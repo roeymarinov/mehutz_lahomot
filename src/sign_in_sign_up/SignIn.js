@@ -1,14 +1,16 @@
-import { Dialog, TextField } from "@mui/material";
+import { Dialog, IconButton, InputAdornment, TextField } from "@mui/material";
 import "../utils/styles.css";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { app } from "../utils/firebase";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const auth = getAuth(app);
 
 function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
+  const [showPassword, setShowPassword] = useState(false);
   const validationSchema = yup.object({
     email: yup
       .string()
@@ -79,9 +81,21 @@ function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
           autoComplete="off"
           value={formik.values.password}
           error={formik.touched.password && Boolean(formik.errors.password)}
-          type="password"
+          type={showPassword ? "text" : "password"}
           onChange={formik.handleChange}
           helperText={formik.touched.password && formik.errors.password}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <button className="EnterButton" type="submit">
           כניסה
