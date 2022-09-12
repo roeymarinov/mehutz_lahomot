@@ -15,10 +15,12 @@ import holonLogo from "../assets/logo_holon.png";
 import kiryatAtaLogo from "../assets/logo_kiryat_ata.png";
 import maccabiTlvLogo from "../assets/logo_maccabi_tlv.png";
 import nesZionaLogo from "../assets/logo_nes_ziona.png";
+import ludwigsburgLogo from "../assets/logo_ludwigsburg.png";
+import darussafakaLogo from "../assets/logo_darussafaka.png";
 
 function Home() {
   // const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
-  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { user } = useContext(AuthenticatedUserContext);
   const [buses, setBuses] = useState([]);
   const navigate = useNavigate();
   // if (user) {
@@ -44,11 +46,11 @@ function Home() {
       const gameTime =
         data.game_time.toDate().getHours() +
         ":" +
-        data.game_time.toDate().getMinutes();
+        data.game_time.toDate().getMinutes().toString().padStart(2, "0");
       const busTime =
         data.bus_time.toDate().getHours() +
         ":" +
-        data.bus_time.toDate().getMinutes();
+        data.bus_time.toDate().getMinutes().toString().padStart(2, "0");
       const gameDate =
         data.date.toDate().getDate() +
         "/" +
@@ -113,6 +115,10 @@ function Home() {
         return maccabiTlvLogo;
       case "עירוני נס ציונה":
         return nesZionaLogo;
+      case "לודוויגסבורג":
+        return ludwigsburgLogo;
+      case "דרושאפקה":
+        return darussafakaLogo;
       default:
         return "error";
     }

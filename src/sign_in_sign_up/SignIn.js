@@ -1,40 +1,51 @@
 import { Dialog, TextField } from "@mui/material";
 import "../utils/styles.css";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { app } from "../utils/firebase";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 const auth = getAuth(app);
 
 function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
+  const validationSchema = yup.object({
+    email: yup
+      .string()
+      .email("הכניסו כתובת מייל תקינה")
+      .required("אנא הכניסו כתובת מייל"),
+    password: yup.string("אנא הכניסו סיסמה").required("אנא הכניסו סיסמה"),
+  });
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values, { setErrors }) => {
+      signInWithEmailAndPassword(auth, values.email, values.password)
+        .then(() => {
+          // Signed in
+          closeSignIn();
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorMessage, errorCode);
+          setErrors({ password: "כתובת המייל או הסיסמה שגויים" });
+        });
+    },
+  });
 
   const closeSignIn = () => {
     setSignInDialogOpen(false);
-  };
-
-  const signIn = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        closeSignIn();
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorMessage, errorCode);
-      });
   };
 
   useEffect(() => {
     const keyDownHandler = (event) => {
       if (event.key === "Enter" && signInDialogOpen) {
         event.preventDefault();
-        signIn();
+        formik.handleSubmit();
       }
     };
 
@@ -48,30 +59,34 @@ function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
   return (
     <Dialog open={signInDialogOpen} onClose={closeSignIn}>
       <p className="DialogTitle">התחברות לאתר</p>
-      <TextField
-        placeholder="מייל"
-        margin="dense"
-        required={true}
-        autoComplete="off"
-        error={emailError}
-        onChange={(event) => {
-          setEmail(event.target.value);
-        }}
-      />
-      <TextField
-        placeholder="סיסמה"
-        margin="dense"
-        required={true}
-        autoComplete="off"
-        error={passwordError}
-        type="password"
-        onChange={(event) => {
-          setPassword(event.target.value);
-        }}
-      />
-      <button className="EnterButton" onClick={signIn}>
-        כניסה
-      </button>
+      <form className={"SignInForm"} onSubmit={formik.handleSubmit}>
+        <TextField
+          id="email"
+          name="email"
+          placeholder="מייל"
+          margin="dense"
+          autoComplete="off"
+          value={formik.values.email}
+          error={formik.touched.email && Boolean(formik.errors.email)}
+          onChange={formik.handleChange}
+          helperText={formik.touched.email && formik.errors.email}
+        />
+        <TextField
+          id="password"
+          name="password"
+          placeholder="סיסמה"
+          margin="dense"
+          autoComplete="off"
+          value={formik.values.password}
+          error={formik.touched.password && Boolean(formik.errors.password)}
+          type="password"
+          onChange={formik.handleChange}
+          helperText={formik.touched.password && formik.errors.password}
+        />
+        <button className="EnterButton" type="submit">
+          כניסה
+        </button>
+      </form>
       <div className="NoUserText">
         <p>עדיין אין לכם משתמש?&nbsp; </p>
         <p className="RegisterText" onClick={goToSignUpDialog}>

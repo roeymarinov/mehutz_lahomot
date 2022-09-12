@@ -4,32 +4,55 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   FormLabel,
   RadioGroup,
   FormControlLabel,
   Radio,
+  FormHelperText,
 } from "@mui/material";
 import { useState } from "react";
 import SubmitDialog from "./SubmitDialog";
 import { useLocation } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
+import * as yup from "yup";
+import { useFormik } from "formik";
 
 function BusRegister() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [numPassengers, setNumPassengers] = useState("");
-  const [boardingStation, setBoardingStation] = useState("רכבת מרכז");
-  const [alightingStation, setAlightingStation] = useState("רכבת מרכז");
-
-  const [phoneError, setPhoneError] = useState(false);
-  const [emailError, setEmailError] = useState(false);
+  const validationSchema = yup.object({
+    email: yup
+      .string()
+      .email("הכניסו כתובת מייל תקינה")
+      .required("אנא הכניסו כתובת מייל"),
+    name: yup
+      .string()
+      .min(4, "אנא הכניסו שם מלא")
+      .required("אנא הכניסו שם מלא"),
+    phone: yup
+      .string()
+      .min(4, "אנא הכניסו מס' טלפון תקין")
+      .max(20, "אנא הכניסו מס' טלפון תקין")
+      .required("אנא הכניס טלפון נייד"),
+    numPassengers: yup.string().required("אנא בחרו מס' נוסעים"),
+  });
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      name: "",
+      phone: "",
+      numPassengers: "",
+      boardingStation: "רכבת מרכז",
+      alightingStation: "רכבת מרכז",
+    },
+    validationSchema: validationSchema,
+    onSubmit: () => {
+      setSubmitDialogOpen(true);
+    },
+  });
 
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const { state } = useLocation();
-  const { busTime, gameTime, gameDate, opponentName, busID } = state; // Read values passed on state
+  const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
   const [availablePlaces, setAvailablePlaces] = useState(0);
   const [numPassengersArray, setNumPassengersArray] = useState([0]);
 
@@ -44,7 +67,7 @@ function BusRegister() {
       }
     }
   };
-  if (numPassengers === "") {
+  if (formik.values.numPassengers === "") {
     checkAvailablePlaces().then(() => {
       setNumPassengersArray(
         [...Array(Math.min(availablePlaces, 10) + 1).keys()].slice(1)
@@ -67,18 +90,23 @@ function BusRegister() {
           <p>₪20/₪15 לכיוון</p>
         </div>
       </div>
-      <div className="BusForm" dir="rtl" lang="he">
+      <form
+        className="BusForm"
+        dir="rtl"
+        lang="he"
+        onSubmit={formik.handleSubmit}
+      >
         <FormControl>
           <FormLabel id="demo-radio-buttons-group-label">
             תחנת עלייה (בהלוך)
           </FormLabel>
           <RadioGroup
+            id={"boardingStation"}
+            name={"boardingStation"}
             aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="רכבת מרכז"
             className="ChooseStation"
-            onChange={(event) => {
-              setBoardingStation(event.target.value);
-            }}
+            value={formik.values.boardingStation}
+            onChange={formik.handleChange}
           >
             <FormControlLabel
               value="רכבת מרכז"
@@ -105,12 +133,12 @@ function BusRegister() {
             תחנת ירידה (בחזור)
           </FormLabel>
           <RadioGroup
+            id={"alightingStation"}
+            name={"alightingStation"}
             aria-labelledby="alighting-station-radio-buttons-group"
-            defaultValue="רכבת מרכז"
             className="ChooseStation"
-            onChange={(event) => {
-              setAlightingStation(event.target.value);
-            }}
+            value={formik.values.alightingStation}
+            onChange={formik.handleChange}
           >
             <FormControlLabel
               value="רכבת מרכז"
@@ -133,73 +161,84 @@ function BusRegister() {
               label="אני נוסע/ת רק הלוך"
             />
           </RadioGroup>
-
-          <Select
-            className="NumPassengers"
-            value={numPassengers}
-            label=""
-            displayEmpty
-            onChange={(event) => {
-              setNumPassengers(event.target.value);
-            }}
-          >
-            <MenuItem value="">מס' נוסעים</MenuItem>
-            {numPassengersArray.map((val) => {
-              return (
-                <MenuItem value={val} key={val}>
-                  {val}
-                </MenuItem>
-              );
-            })}
-          </Select>
+          <div className="NumPassengers">
+            <Select
+              id="numPassengers"
+              name={"numPassengers"}
+              value={formik.values.numPassengers}
+              label=""
+              displayEmpty
+              error={
+                formik.touched.numPassengers &&
+                Boolean(formik.errors.numPassengers)
+              }
+              onChange={formik.handleChange}
+            >
+              <MenuItem value={""}>מס' נוסעים</MenuItem>
+              {numPassengersArray.map((val) => {
+                return (
+                  <MenuItem value={val} key={val}>
+                    {val}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+            {formik.touched.numPassengers &&
+              Boolean(formik.errors.numPassengers) && (
+                <FormHelperText error={true}>
+                  {formik.touched.numPassengers && formik.errors.numPassengers}
+                </FormHelperText>
+              )}
+          </div>
           <TextField
+            id="name"
+            name="name"
             placeholder="שם מלא"
             margin="dense"
-            required={true}
             autoComplete="off"
-            onChange={(event) => {
-              setName(event.target.value);
-            }}
+            value={formik.values.name}
+            error={formik.touched.name && Boolean(formik.errors.name)}
+            onChange={formik.handleChange}
+            helperText={formik.touched.name && formik.errors.name}
           />
           <TextField
+            id="email"
+            name="email"
             placeholder="מייל"
             margin="dense"
-            required={true}
             autoComplete="off"
-            error={emailError}
-            onChange={(event) => {
-              setEmail(event.target.value);
-            }}
+            value={formik.values.email}
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            onChange={formik.handleChange}
+            helperText={formik.touched.email && formik.errors.email}
           />
           <TextField
+            id="phone"
+            name="phone"
             placeholder="טלפון נייד"
             margin="dense"
-            required={true}
             autoComplete="off"
-            error={phoneError}
-            onChange={(event) => {
-              setPhone(event.target.value);
-            }}
+            value={formik.values.phone}
+            error={formik.touched.phone && Boolean(formik.errors.phone)}
+            onChange={formik.handleChange}
+            helperText={formik.touched.phone && formik.errors.phone}
           />
         </FormControl>
-      </div>
 
-      <button
-        className="SubmitButton"
-        onClick={() => setSubmitDialogOpen(true)}
-      >
-        המשך
-      </button>
+        <button className="SubmitButton" type={"submit"}>
+          המשך
+        </button>
+      </form>
       <SubmitDialog
         setSubmitDialogOpen={setSubmitDialogOpen}
         submitDialogOpen={submitDialogOpen}
         personalDetails={{
-          name: name,
-          alightingStation: alightingStation,
-          boardingStation: boardingStation,
-          numPassengers: numPassengers,
-          email: email,
-          phone: phone,
+          name: formik.values.name,
+          alightingStation: formik.values.alightingStation,
+          boardingStation: formik.values.boardingStation,
+          numPassengers: formik.values.numPassengers,
+          email: formik.values.email,
+          phone: formik.values.phone,
         }}
         busDetails={state}
       />
