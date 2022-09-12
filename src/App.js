@@ -20,6 +20,9 @@ const theme = createTheme({
     neutral: {
       main: "#df1d22",
     },
+    info: {
+      main: "#FFFFFF",
+    },
   },
 });
 

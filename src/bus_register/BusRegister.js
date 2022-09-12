@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   Radio,
   FormHelperText,
+  CircularProgress,
 } from "@mui/material";
 import { useState } from "react";
 import SubmitDialog from "./SubmitDialog";
@@ -19,6 +20,11 @@ import * as yup from "yup";
 import { useFormik } from "formik";
 
 function BusRegister() {
+  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
+  const { state } = useLocation();
+  const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
+  const [availablePlaces, setAvailablePlaces] = useState(0);
+  const [numPassengersArray, setNumPassengersArray] = useState([0]);
   const validationSchema = yup.object({
     email: yup
       .string()
@@ -45,16 +51,25 @@ function BusRegister() {
       alightingStation: "רכבת מרכז",
     },
     validationSchema: validationSchema,
-    onSubmit: () => {
-      setSubmitDialogOpen(true);
+    onSubmit: async (values, { setErrors, setSubmitting }) => {
+      const isEmailOk = await checkEmail(values.email);
+      if (isEmailOk) {
+        setSubmitDialogOpen(true);
+      } else {
+        setErrors({ email: "כתובת המייל הזו כבר רשומה להסעה" });
+      }
+      setSubmitting(false);
     },
   });
 
-  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
-  const { state } = useLocation();
-  const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
-  const [availablePlaces, setAvailablePlaces] = useState(0);
-  const [numPassengersArray, setNumPassengersArray] = useState([0]);
+  const checkEmail = async (email) => {
+    const busRef = doc(db, "Buses", state.busID);
+    const docSnap = await getDoc(busRef);
+    if (docSnap.exists()) {
+      const registeredUsers = docSnap.data().registered_users;
+      return !registeredUsers.some((user) => user.email === email);
+    }
+  };
 
   const checkAvailablePlaces = async () => {
     const busRef = doc(db, "Buses", state.busID);
@@ -226,7 +241,11 @@ function BusRegister() {
         </FormControl>
 
         <button className="SubmitButton" type={"submit"}>
-          המשך
+          {formik.isSubmitting ? (
+            <CircularProgress size={"1em"} color={"info"} />
+          ) : (
+            "המשך"
+          )}
         </button>
       </form>
       <SubmitDialog
