@@ -23,7 +23,8 @@ function BusRegister() {
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const { state } = useLocation();
   const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
-  const [availablePlaces, setAvailablePlaces] = useState(0);
+  const [availablePlacesToGame, setAvailablePlacesToGame] = useState(0);
+  const [availablePlacesFromGame, setAvailablePlacesFromGame] = useState(0);
   const [numPassengersArray, setNumPassengersArray] = useState([0]);
   const validationSchema = yup.object({
     email: yup
@@ -38,6 +39,7 @@ function BusRegister() {
       .string()
       .min(4, "אנא הכניסו מס' טלפון תקין")
       .max(20, "אנא הכניסו מס' טלפון תקין")
+      .matches(/^\d+$/, "אנא הכניסו ספרות בלבד")
       .required("אנא הכניס טלפון נייד"),
     numPassengers: yup.string().required("אנא בחרו מס' נוסעים"),
   });
@@ -76,16 +78,27 @@ function BusRegister() {
     const docSnap = await getDoc(busRef);
     if (docSnap.exists()) {
       const maxPassengers = docSnap.data().max_passengers;
-      const totalPassengers = docSnap.data().total_passengers;
-      if (totalPassengers < maxPassengers) {
-        setAvailablePlaces(maxPassengers - totalPassengers);
-      }
+      const totalPassengersToGame = docSnap.data().totals.toGame;
+      const totalPassengersFromGame = docSnap.data().totals.fromGame;
+      setAvailablePlacesToGame(
+        Math.max(0, maxPassengers - totalPassengersToGame)
+      );
+      setAvailablePlacesFromGame(
+        Math.max(0, maxPassengers - totalPassengersFromGame)
+      );
     }
   };
   if (formik.values.numPassengers === "") {
     checkAvailablePlaces().then(() => {
       setNumPassengersArray(
-        [...Array(Math.min(availablePlaces, 10) + 1).keys()].slice(1)
+        [
+          ...Array(
+            Math.min(
+              Math.max(availablePlacesFromGame, availablePlacesToGame),
+              10
+            ) + 1
+          ).keys(),
+        ].slice(1)
       );
     });
   }

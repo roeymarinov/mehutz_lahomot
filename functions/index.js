@@ -148,7 +148,8 @@ exports.createNewBusSheet = functions.firestore
       ["סהכ מרכז"],
       ["סהכ מהיר"],
       ["סהכ שילת"],
-      ["סהכ נוסעים"],
+      ["סהכ הלוך"],
+      ["סהכ חזור"],
     ];
     return authorize()
       .then(() => createBusSheet(SPREADSHEET_ID, title))
@@ -188,7 +189,9 @@ exports.registerUser = functions.firestore
     const newUsers = registeredUsersAfter.filter(
       (x) => !registeredUsersBefore.includes(x)
     );
-    const totalPassengers = data.total_passengers;
+    const totalPassengersToGame = data.totals.toGame;
+    const totalPassengersFromGame = data.totals.fromGame;
+
     return authorize()
       .then(() => {
         newUsers.forEach((userDetails) => {
@@ -230,8 +233,9 @@ exports.registerUser = functions.firestore
         });
       })
       .then(() =>
-        updateValues(SPREADSHEET_ID, "'" + title + "'!N4:N4", "USER_ENTERED", [
-          [totalPassengers.toString()],
+        updateValues(SPREADSHEET_ID, "'" + title + "'!N4:N5", "USER_ENTERED", [
+          [totalPassengersToGame.toString()],
+          [totalPassengersFromGame.toString()],
         ])
       )
       .catch(console.error);

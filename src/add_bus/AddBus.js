@@ -70,7 +70,15 @@ function AddBus() {
         bus_time: busTime.toDate(),
         opponent: formik.values.opponentName,
         registered_users: [],
-        total_passengers: 0,
+        totals: {
+          toGame: 0,
+          fromGame: 0,
+          oneTime: 0,
+          members: 0,
+          merkaz: 0,
+          mahir: 0,
+          shilat: 0,
+        },
         max_passengers: formik.values.maxPassengers,
       });
       actions.setSubmitting(false);

@@ -36,13 +36,33 @@ function SubmitDialog({
     const busRef = doc(db, "Buses", busDetails.busID);
     const docSnap = await getDoc(busRef);
     if (docSnap.exists()) {
+      const data = docSnap.data();
       const maxPassengers = docSnap.data().max_passengers;
-      const totalPassengers =
-        docSnap.data().total_passengers + personalDetails.numPassengers;
-      if (totalPassengers <= maxPassengers) {
+      const totalPassengersToGame =
+        personalDetails.boardingStation === "אני נוסע/ת רק חזור"
+          ? data.totals.toGame
+          : data.totals.toGame + personalDetails.numPassengers;
+      const totalPassengersFromGame =
+        personalDetails.alightingStation === "אני נוסע/ת רק הלוך"
+          ? data.totals.fromGame
+          : data.totals.fromGame + personalDetails.numPassengers;
+
+      if (
+        totalPassengersToGame <= maxPassengers &&
+        totalPassengersFromGame <= maxPassengers
+      ) {
+        // if (personalDetails.boardingStation === "רכבת מרכז") {
+        // } else if (personalDetails.boardingStation === "חניון שפירים") {
+        // } else if (personalDetails.boardingStation === "צומת שילת") {
+        // } else {
+        // }
         await updateDoc(busRef, {
           registered_users: arrayUnion(personalDetails),
-          total_passengers: totalPassengers,
+          totals: {
+            ...data.totals,
+            toGame: totalPassengersToGame,
+            fromGame: totalPassengersFromGame,
+          },
         });
         setRegisteredSuccessfully(true);
       } else {
