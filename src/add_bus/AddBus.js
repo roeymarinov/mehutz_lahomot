@@ -77,7 +77,7 @@ function AddBus() {
           members: 0,
           merkaz: 0,
           mahir: 0,
-          shilat: 0,
+          latrun: 0,
         },
         max_passengers: formik.values.maxPassengers,
       });

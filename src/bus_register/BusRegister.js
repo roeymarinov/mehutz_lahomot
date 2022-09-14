@@ -147,9 +147,9 @@ function BusRegister() {
               label="חניון שפירים - הנתיב המהיר (₪20)"
             />
             <FormControlLabel
-              value="צומת שילת"
+              value="מחלף לטרון"
               control={<Radio />}
-              label="צומת שילת (₪15)"
+              label="מחלף לטרון (₪15)"
             />
             <FormControlLabel
               value="אני נוסע/ת רק חזור"
@@ -179,9 +179,9 @@ function BusRegister() {
               label="חניון שפירים - הנתיב המהיר (₪20)"
             />
             <FormControlLabel
-              value="צומת שילת"
+              value="מחלף לטרון"
               control={<Radio />}
-              label="צומת שילת (₪15)"
+              label="מחלף לטרון (₪15)"
             />
             <FormControlLabel
               value="אני נוסע/ת רק הלוך"
