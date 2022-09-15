@@ -298,7 +298,20 @@
 .ChooseStation {
     margin-top: 1vh;
 }
+.NumMembers {
+    display: flex;
+    flex-direction: row;
+}
 
+.NumMembers .MuiFormLabel-root {
+    font-size: 1.25em;
+    margin-left: 10px;
+    color: black;
+}
+
+.NMTitle {
+
+}
 
 .SubmitButton {
     align-self: center;

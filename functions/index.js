@@ -330,11 +330,23 @@ exports.registerUser = functions.firestore
             userDetails.alightingStation !== "אני נוסע/ת רק הלוך"
               ? userDetails.numPassengers
               : "0";
-          const oneTime = userDetails.numPassengers; // TODO: change!!
-          const member = "0"; // TODO: change!!
-          const merkaz = "?"; // TODO: change!!
-          const mahir = "?"; // TODO: change!!
-          const latrun = "?"; // TODO: change!!
+          const oneTime = userDetails.numPassengers - userDetails.numMembers;
+          const member = userDetails.numMembers;
+          const merkaz =
+            userDetails.boardingStation === "רכבת מרכז" ||
+            userDetails.alightingStation === "רכבת מרכז"
+              ? userDetails.numPassengers
+              : "0";
+          const mahir =
+            userDetails.boardingStation === "חניון שפירים" ||
+            userDetails.alightingStation === "חניון שפירים"
+              ? userDetails.numPassengers
+              : "0";
+          const latrun =
+            userDetails.boardingStation === "מחלף לטרון" ||
+            userDetails.alightingStation === "מחלף לטרון"
+              ? userDetails.numPassengers
+              : "0";
           const row = [
             [
               name,
@@ -355,9 +367,14 @@ exports.registerUser = functions.firestore
         });
       })
       .then(() =>
-        updateValues(SPREADSHEET_ID, "'" + title + "'!N4:N5", "USER_ENTERED", [
-          [totalPassengersToGame.toString()],
-          [totalPassengersFromGame.toString()],
+        updateValues(SPREADSHEET_ID, "'" + title + "'!N1:N7", "USER_ENTERED", [
+          [data.totals.merkaz.toString()],
+          [data.totals.mahir.toString()],
+          [data.totals.latrun.toString()],
+          [data.totals.members.toString()],
+          [data.totals.oneTime.toString()],
+          [data.totals.toGame.toString()],
+          [data.totals.fromGame.toString()],
         ])
       )
       .catch(console.error);

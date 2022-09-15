@@ -1,6 +1,6 @@
 import "../utils/styles.css";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { query, orderBy, collection, getDocs } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
@@ -34,41 +34,47 @@ function Home() {
   //         }
   //     });
   // }
-  const displayAsAdmin = user ? user.displayAsAdmin : false;
+  const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
+  // const displayAsAdmin = user ? user.displayAsAdmin : false;
   const BusesRef = collection(db, "Buses");
   const q = query(BusesRef, orderBy("date"));
-  getDocs(q).then((querySnapshot) => {
-    const busesArray = [];
-    querySnapshot.forEach((doc) => {
-      const busID = doc.id;
-      const data = doc.data();
-      const opponentName = data.opponent;
-      const gameTime =
-        data.game_time.toDate().getHours() +
-        ":" +
-        data.game_time.toDate().getMinutes().toString().padStart(2, "0");
-      const busTime =
-        data.bus_time.toDate().getHours() +
-        ":" +
-        data.bus_time.toDate().getMinutes().toString().padStart(2, "0");
-      const gameDate =
-        data.date.toDate().getDate() +
-        "/" +
-        (parseInt(data.date.toDate().getMonth()) + 1).toString();
-      const gameDay = data.date.toDate().getDay();
-      const isBusFull = data.total_passengers >= data.max_passengers;
-      busesArray.push({
-        opponentName: opponentName,
-        gameDate: gameDate,
-        gameTime: gameTime,
-        gameDay: gameDay,
-        busTime: busTime,
-        busID: busID,
-        isBusFull: isBusFull,
+  useEffect(() => {
+    if (user) {
+      setDisplayAsAdmin(user.displayAsAdmin);
+    }
+    getDocs(q).then((querySnapshot) => {
+      const busesArray = [];
+      querySnapshot.forEach((doc) => {
+        const busID = doc.id;
+        const data = doc.data();
+        const opponentName = data.opponent;
+        const gameTime =
+          data.game_time.toDate().getHours() +
+          ":" +
+          data.game_time.toDate().getMinutes().toString().padStart(2, "0");
+        const busTime =
+          data.bus_time.toDate().getHours() +
+          ":" +
+          data.bus_time.toDate().getMinutes().toString().padStart(2, "0");
+        const gameDate =
+          data.date.toDate().getDate() +
+          "/" +
+          (parseInt(data.date.toDate().getMonth()) + 1).toString();
+        const gameDay = data.date.toDate().getDay();
+        const isBusFull = data.total_passengers >= data.max_passengers;
+        busesArray.push({
+          opponentName: opponentName,
+          gameDate: gameDate,
+          gameTime: gameTime,
+          gameDay: gameDay,
+          busTime: busTime,
+          busID: busID,
+          isBusFull: isBusFull,
+        });
       });
+      setBuses(busesArray);
     });
-    setBuses(busesArray);
-  });
+  }, [user]);
 
   const convertNumToDayOfWeek = (num) => {
     switch (num) {

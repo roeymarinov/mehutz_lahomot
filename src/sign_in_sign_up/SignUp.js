@@ -24,6 +24,7 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
   const validationSchema = yup.object({
     email: yup
       .string()
+      .lowercase()
       .email("הכניסו כתובת מייל תקינה")
       .required("אנא הכניסו כתובת מייל"),
     password: yup
@@ -58,8 +59,7 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
           }).then(() => {
             // Profile updated!
             // ...
-            // Add a new document with a generated id.
-            setDoc(doc(db, "Users", user.uid), {
+            setDoc(doc(db, "Users", user.email), {
               username: values.username,
               email: values.email,
               admin: false,
@@ -104,7 +104,7 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
   async function onAuthStateChanged(authenticatedUser) {
     if (authenticatedUser && !user) {
       let displayAsAdmin = false;
-      const docRef = doc(db, "Users", authenticatedUser.uid);
+      const docRef = doc(db, "Users", authenticatedUser.email);
       getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
           displayAsAdmin = docSnap.data().admin;

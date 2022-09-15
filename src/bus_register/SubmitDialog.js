@@ -46,22 +46,39 @@ function SubmitDialog({
         personalDetails.alightingStation === "אני נוסע/ת רק הלוך"
           ? data.totals.fromGame
           : data.totals.fromGame + personalDetails.numPassengers;
-
+      const totalPassengersMerkaz =
+        personalDetails.boardingStation === "רכבת מרכז" ||
+        personalDetails.alightingStation === "רכבת מרכז"
+          ? data.totals.merkaz + personalDetails.numPassengers
+          : data.totals.merkaz;
+      const totalPassengersMahir =
+        personalDetails.boardingStation === "חניון שפירים" ||
+        personalDetails.alightingStation === "חניון שפירים"
+          ? data.totals.mahir + personalDetails.numPassengers
+          : data.totals.mahir;
+      const totalPassengersLatrun =
+        personalDetails.boardingStation === "מחלף לטרון" ||
+        personalDetails.alightingStation === "מחלף לטרון"
+          ? data.totals.latrun + personalDetails.numPassengers
+          : data.totals.latrun;
+      const totalMembers = data.totals.members + personalDetails.numMembers;
+      const totalOneTime =
+        data.totals.oneTime +
+        (personalDetails.numPassengers - personalDetails.numMembers);
       if (
         totalPassengersToGame <= maxPassengers &&
         totalPassengersFromGame <= maxPassengers
       ) {
-        // if (personalDetails.boardingStation === "רכבת מרכז") {
-        // } else if (personalDetails.boardingStation === "חניון שפירים") {
-        // } else if (personalDetails.boardingStation === "צומת שילת") {
-        // } else {
-        // }
         await updateDoc(busRef, {
           registered_users: arrayUnion(personalDetails),
           totals: {
-            ...data.totals,
+            mahir: totalPassengersMahir,
+            merkaz: totalPassengersMerkaz,
+            latrun: totalPassengersLatrun,
             toGame: totalPassengersToGame,
             fromGame: totalPassengersFromGame,
+            members: totalMembers,
+            oneTime: totalOneTime,
           },
         });
         setRegisteredSuccessfully(true);

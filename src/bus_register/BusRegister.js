@@ -11,21 +11,24 @@ import {
   FormHelperText,
   CircularProgress,
 } from "@mui/material";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SubmitDialog from "./SubmitDialog";
 import { useLocation } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import * as yup from "yup";
-import { useFormik } from "formik";
+import { useFormik, yupToFormErrors } from "formik";
+import { AuthenticatedUserContext } from "../utils/UserProvider";
 
 function BusRegister() {
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const { state } = useLocation();
+  const { user } = useContext(AuthenticatedUserContext);
   const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
   const [availablePlacesToGame, setAvailablePlacesToGame] = useState(0);
   const [availablePlacesFromGame, setAvailablePlacesFromGame] = useState(0);
   const [numPassengersArray, setNumPassengersArray] = useState([0]);
+  const [numMembers, setNumMembers] = useState(0);
   const validationSchema = yup.object({
     email: yup
       .string()
@@ -52,7 +55,25 @@ function BusRegister() {
       boardingStation: "רכבת מרכז",
       alightingStation: "רכבת מרכז",
     },
-    validationSchema: validationSchema,
+    validate: async (values) => {
+      const errors = {};
+      if (
+        values.boardingStation === "אני נוסע/ת רק חזור" &&
+        values.alightingStation === "אני נוסע/ת רק הלוך"
+      ) {
+        errors.alightingStation =
+          "אם אתם לא נוסעים באף אחד מהכיוונים, למה להירשם? (;";
+      }
+      try {
+        await validationSchema.validate(values, { abortEarly: false });
+      } catch (e) {
+        return {
+          ...yupToFormErrors(e),
+          ...errors,
+        };
+      }
+      return errors;
+    },
     onSubmit: async (values, { setErrors, setSubmitting }) => {
       const isEmailOk = await checkEmail(values.email);
       if (isEmailOk) {
@@ -73,6 +94,14 @@ function BusRegister() {
     }
   };
 
+  const getNumMembers = async (email) => {
+    const memberRef = doc(db, "Members", email);
+    const docSnap = await getDoc(memberRef);
+    if (docSnap.exists()) {
+      return docSnap.data().numMembers;
+    } else return 0;
+  };
+
   const checkAvailablePlaces = async () => {
     const busRef = doc(db, "Buses", state.busID);
     const docSnap = await getDoc(busRef);
@@ -88,20 +117,30 @@ function BusRegister() {
       );
     }
   };
-  if (formik.values.numPassengers === "") {
-    checkAvailablePlaces().then(() => {
-      setNumPassengersArray(
-        [
-          ...Array(
-            Math.min(
-              Math.max(availablePlacesFromGame, availablePlacesToGame),
-              10
-            ) + 1
-          ).keys(),
-        ].slice(1)
-      );
-    });
-  }
+
+  useEffect(() => {
+    if (user) {
+      getNumMembers(user.email).then((num) => {
+        if (numMembers !== num) {
+          setNumMembers(num);
+        }
+      });
+    }
+    if (formik.values.numPassengers === "") {
+      checkAvailablePlaces().then(() => {
+        setNumPassengersArray(
+          [
+            ...Array(
+              Math.min(
+                Math.max(availablePlacesFromGame, availablePlacesToGame),
+                10
+              ) + 1
+            ).keys(),
+          ].slice(1)
+        );
+      });
+    }
+  }, [numMembers, user]);
 
   return (
     <div className="BusRegister">
@@ -189,6 +228,7 @@ function BusRegister() {
               label="אני נוסע/ת רק הלוך"
             />
           </RadioGroup>
+
           <div className="NumPassengers">
             <Select
               id="numPassengers"
@@ -252,7 +292,19 @@ function BusRegister() {
             helperText={formik.touched.phone && formik.errors.phone}
           />
         </FormControl>
-
+        {numMembers > 0 && (
+          <div className={"NumMembers"}>
+            <FormLabel>מס' מנויים: </FormLabel>
+            <FormLabel>{numMembers}</FormLabel>
+          </div>
+        )}
+        {formik.touched.alightingStation &&
+          Boolean(formik.errors.alightingStation) && (
+            <FormHelperText error={true}>
+              {formik.touched.alightingStation &&
+                formik.errors.alightingStation}
+            </FormHelperText>
+          )}
         <button className="SubmitButton" type={"submit"}>
           {formik.isSubmitting ? (
             <CircularProgress size={"1em"} color={"info"} />
@@ -271,6 +323,7 @@ function BusRegister() {
           numPassengers: formik.values.numPassengers,
           email: formik.values.email,
           phone: formik.values.phone,
+          numMembers: numMembers,
         }}
         busDetails={state}
       />
