@@ -30,7 +30,6 @@ function SubmitDialog({
       setConfirmedDetails(false);
     }
   };
-
   const registerToBus = async () => {
     setLoading(true);
     const busRef = doc(db, "Buses", busDetails.busID);
@@ -70,7 +69,8 @@ function SubmitDialog({
         totalPassengersFromGame <= maxPassengers
       ) {
         await updateDoc(busRef, {
-          registered_users: arrayUnion(personalDetails),
+          [`registered_users.${personalDetails.email.replaceAll(".", "@")}`]:
+            personalDetails,
           totals: {
             mahir: totalPassengersMahir,
             merkaz: totalPassengersMerkaz,
@@ -212,7 +212,9 @@ function SubmitDialog({
             </p>
           ) : (
             <p className="SuccessMessage">
-              נרשמתם בהצלחה! מייל עם הפרטים יישלח לכתובת {personalDetails.email}
+              נרשמתם בהצלחה!{" "}
+              {personalDetails.sendMail &&
+                `מייל עם הפרטים יישלח לכתובת ${personalDetails.email}`}
             </p>
           )}
           <Link to="/">

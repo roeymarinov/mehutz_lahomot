@@ -69,7 +69,7 @@ function AddBus() {
         game_time: gameTime.toDate(),
         bus_time: busTime.toDate(),
         opponent: formik.values.opponentName,
-        registered_users: [],
+        registered_users: {},
         totals: {
           toGame: 0,
           fromGame: 0,

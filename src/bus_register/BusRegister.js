@@ -10,6 +10,7 @@ import {
   Radio,
   FormHelperText,
   CircularProgress,
+  Checkbox,
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import SubmitDialog from "./SubmitDialog";
@@ -54,6 +55,7 @@ function BusRegister() {
       numPassengers: "",
       boardingStation: "רכבת מרכז",
       alightingStation: "רכבת מרכז",
+      sendMail: true,
     },
     validate: async (values) => {
       const errors = {};
@@ -90,7 +92,8 @@ function BusRegister() {
     const docSnap = await getDoc(busRef);
     if (docSnap.exists()) {
       const registeredUsers = docSnap.data().registered_users;
-      return !registeredUsers.some((user) => user.email === email);
+      console.log(registeredUsers[email.replaceAll(".", "@")]);
+      return registeredUsers[email.replaceAll(".", "@")] === undefined;
     }
   };
 
@@ -305,6 +308,18 @@ function BusRegister() {
                 formik.errors.alightingStation}
             </FormHelperText>
           )}
+        <FormControlLabel
+          control={
+            <Checkbox
+              defaultChecked
+              id={"sendMail"}
+              name={"sendMail"}
+              value={formik.values.sendMail}
+              onChange={formik.handleChange}
+            />
+          }
+          label="שלחו לי מייל אישור עם פרטי ההסעה"
+        />
         <button className="SubmitButton" type={"submit"}>
           {formik.isSubmitting ? (
             <CircularProgress size={"1em"} color={"info"} />
@@ -323,7 +338,9 @@ function BusRegister() {
           numPassengers: formik.values.numPassengers,
           email: formik.values.email,
           phone: formik.values.phone,
-          numMembers: numMembers,
+          numMembers: Math.min(numMembers, formik.values.numPassengers),
+          sendMail: formik.values.sendMail,
+          sentMail: false,
         }}
         busDetails={state}
       />

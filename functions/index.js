@@ -70,12 +70,13 @@ const sendMail = async (options) => {
 };
 
 async function sendSummaryEmail(userEmail, userDetails, gameDetails) {
+  console.log("sending email to", userEmail);
   const messageTitle = `הסעות מחוץ לחומות - סיכום הרשמה להסעה - ${gameDetails.opponent} ${gameDetails.date}`;
 
   // eslint-disable-next-line no-useless-concat
   const messageBody =
     `<html dir="rtl" lang="iw">` +
-    `<head></head>` +
+    `<head><title></title></head>` +
     `<body>` +
     `<h3>פרטי ההסעה</h3>\n` +
     `<p>תאריך: ${gameDetails.date}</p>\n` +
@@ -137,6 +138,7 @@ async function sendSummaryEmail(userEmail, userDetails, gameDetails) {
     .catch(function (err) {
       console.error(err, err.stack);
     });
+
   // const options = {
   //   to: userEmail,
   //   replyTo: "mehutzlaomot@gmail.com\n",
@@ -160,14 +162,12 @@ async function updateValues(spreadsheetId, range, valueInputOption, values) {
     values,
   };
   try {
-    const result = await sheets.spreadsheets.values.update({
+    return await sheets.spreadsheets.values.update({
       spreadsheetId,
       range,
       valueInputOption,
       resource,
     });
-    console.log("%d cells updated.", result.data.updatedCells);
-    return result;
   } catch (err) {
     console.log(err.message);
   }
@@ -199,7 +199,6 @@ async function createBusSheet(spreadsheetId, title) {
       },
     });
   } catch (err) {
-    console.log("batchUpdate error");
     console.log(err.message);
   }
 }
@@ -207,19 +206,16 @@ async function createBusSheet(spreadsheetId, title) {
 async function appendRows(spreadsheetId, range, valueInputOption, values) {
   const client = await authorize();
   const service = google.sheets({ version: "v4", auth: client });
-  console.log("invoke appendRows");
   const resource = {
     values,
   };
   try {
-    const result = await service.spreadsheets.values.append({
+    return await service.spreadsheets.values.append({
       spreadsheetId,
       range,
       valueInputOption,
       resource,
     });
-    console.log(`${result.data.updates.updatedCells} cells appended.`);
-    return result;
   } catch (err) {
     console.log(err.message);
   }
@@ -228,7 +224,6 @@ async function appendRows(spreadsheetId, range, valueInputOption, values) {
 exports.createNewBusSheet = functions.firestore
   .document("/Buses/{busId}")
   .onCreate((snap, context) => {
-    console.log("invoked createNewBusSheet");
     const data = snap.data();
     const title =
       data.opponent +
@@ -295,12 +290,17 @@ exports.registerUser = functions.firestore
       data.date.toDate().getDate() +
       "/" +
       (parseInt(data.date.toDate().getMonth()) + 1).toString();
-    const newUsers =
-      registeredUsersBefore.length < registeredUsersAfter.length
-        ? registeredUsersAfter.filter((x) => !registeredUsersBefore.includes(x))
-        : [];
-    const totalPassengersToGame = data.totals.toGame;
-    const totalPassengersFromGame = data.totals.fromGame;
+    const newUsers = {};
+    const keys = Object.keys(registeredUsersBefore);
+    for (const key in registeredUsersAfter) {
+      if (!keys.includes(key)) {
+        newUsers[key] = registeredUsersAfter[key];
+      }
+    }
+    // const newUsers =
+    //   registeredUsersBefore.length < registeredUsersAfter.length
+    //     ? registeredUsersAfter.filter((x) => !registeredUsersBefore.includes(x))
+    //     : [];
     const gameDetails = {
       date:
         data.date.toDate().getDate() +
@@ -318,10 +318,10 @@ exports.registerUser = functions.firestore
     };
     return authorize()
       .then(() => {
-        newUsers.forEach((userDetails) => {
+        Object.entries(newUsers).forEach(([emailat, userDetails]) => {
           const name = userDetails.name;
-          const phone = userDetails.phone;
           const email = userDetails.email;
+          const phone = userDetails.phone;
           const haloch =
             userDetails.boardingStation !== "אני נוסע/ת רק חזור"
               ? userDetails.numPassengers
@@ -363,7 +363,22 @@ exports.registerUser = functions.firestore
           ];
           appendRows(SPREADSHEET_ID, "'" + title + "'!A:K", "RAW", row)
             .catch(console.error)
-            .then(() => sendSummaryEmail(email, userDetails, gameDetails));
+            .then(() => {
+              if (userDetails.sendMail && !userDetails.sentMail) {
+                sendSummaryEmail(email, userDetails, gameDetails)
+                  .catch((err) => console.log(err))
+                  .then(() => {
+                    const sentMailDocRef = admin
+                      .firestore()
+                      .collection("Buses")
+                      .doc(change.after.id);
+
+                    return sentMailDocRef.update({
+                      [`registered_users.${emailat}.sentMail`]: true,
+                    });
+                  });
+              }
+            });
         });
       })
       .then(() =>
