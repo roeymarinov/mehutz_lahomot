@@ -26,8 +26,7 @@ function BusRegister() {
   const { state } = useLocation();
   const { user } = useContext(AuthenticatedUserContext);
   const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
-  const [availablePlacesToGame, setAvailablePlacesToGame] = useState(0);
-  const [availablePlacesFromGame, setAvailablePlacesFromGame] = useState(0);
+
   const [numPassengersArray, setNumPassengersArray] = useState([0]);
   const [numMembers, setNumMembers] = useState(0);
   const validationSchema = yup.object({
@@ -92,7 +91,6 @@ function BusRegister() {
     const docSnap = await getDoc(busRef);
     if (docSnap.exists()) {
       const registeredUsers = docSnap.data().registered_users;
-      console.log(registeredUsers[email.replaceAll(".", "@")]);
       return registeredUsers[email.replaceAll(".", "@")] === undefined;
     }
   };
@@ -112,11 +110,19 @@ function BusRegister() {
       const maxPassengers = docSnap.data().max_passengers;
       const totalPassengersToGame = docSnap.data().totals.toGame;
       const totalPassengersFromGame = docSnap.data().totals.fromGame;
-      setAvailablePlacesToGame(
-        Math.max(0, maxPassengers - totalPassengersToGame)
+
+      const availablePlacesToGame = Math.max(
+        0,
+        maxPassengers - totalPassengersToGame
       );
-      setAvailablePlacesFromGame(
-        Math.max(0, maxPassengers - totalPassengersFromGame)
+      const availablePlacesFromGame = Math.max(
+        0,
+        maxPassengers - totalPassengersFromGame
+      );
+
+      return (
+        Math.min(Math.max(availablePlacesFromGame, availablePlacesToGame), 10) +
+        1
       );
     }
   };
@@ -130,17 +136,8 @@ function BusRegister() {
       });
     }
     if (formik.values.numPassengers === "") {
-      checkAvailablePlaces().then(() => {
-        setNumPassengersArray(
-          [
-            ...Array(
-              Math.min(
-                Math.max(availablePlacesFromGame, availablePlacesToGame),
-                10
-              ) + 1
-            ).keys(),
-          ].slice(1)
-        );
+      checkAvailablePlaces().then((arrayLen) => {
+        setNumPassengersArray([...Array(arrayLen).keys()].slice(1));
       });
     }
   }, [numMembers, user]);
