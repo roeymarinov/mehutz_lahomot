@@ -20,15 +20,18 @@ import { db } from "../utils/firebase";
 import * as yup from "yup";
 import { useFormik, yupToFormErrors } from "formik";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
+const LATRUN_PRICE = 15;
+const PRICE = 20;
 
 function BusRegister() {
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const { state } = useLocation();
   const { user } = useContext(AuthenticatedUserContext);
   const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
-
   const [numPassengersArray, setNumPassengersArray] = useState([0]);
   const [numMembers, setNumMembers] = useState(0);
+  const [price, setPrice] = useState(0);
+
   const validationSchema = yup.object({
     email: yup
       .string()
@@ -95,6 +98,28 @@ function BusRegister() {
     }
   };
 
+  const calculatePrice = (
+    numPassengers,
+    numMembers,
+    boardingStation,
+    alightingStation
+  ) => {
+    const numPaying = Math.max(numPassengers - numMembers, 0);
+    const toGamePrice =
+      boardingStation === "מחלף לטרון"
+        ? LATRUN_PRICE
+        : boardingStation === "אני נוסע/ת רק חזור"
+        ? 0
+        : PRICE;
+    const fromGamePrice =
+      alightingStation === "מחלף לטרון"
+        ? LATRUN_PRICE
+        : alightingStation === "אני נוסע/ת רק הלוך"
+        ? 0
+        : PRICE;
+    setPrice(numPaying * (toGamePrice + fromGamePrice));
+  };
+
   const getNumMembers = async (email) => {
     const memberRef = doc(db, "Members", email);
     const docSnap = await getDoc(memberRef);
@@ -142,6 +167,20 @@ function BusRegister() {
     }
   }, [numMembers, user]);
 
+  useEffect(() => {
+    calculatePrice(
+      formik.values.numPassengers,
+      numMembers,
+      formik.values.boardingStation,
+      formik.values.alightingStation
+    );
+  }, [
+    numMembers,
+    formik.values.numPassengers,
+    formik.values.boardingStation,
+    formik.values.alightingStation,
+  ]);
+
   return (
     <div className="BusRegister">
       <div className="FormTitle">
@@ -154,7 +193,9 @@ function BusRegister() {
         <div>
           <p>שעת המשחק: {gameTime}</p>
           <p>יציאה מרכבת מרכז: {busTime}</p>
-          <p>₪20/₪15 לכיוון</p>
+          <p>
+            ₪{PRICE}/₪{LATRUN_PRICE} לכיוון
+          </p>
         </div>
       </div>
       <form
@@ -178,17 +219,17 @@ function BusRegister() {
             <FormControlLabel
               value="רכבת מרכז"
               control={<Radio />}
-              label="רכבת מרכז (₪20)"
+              label={`רכבת מרכז (₪${PRICE})`}
             />
             <FormControlLabel
               value="חניון שפירים"
               control={<Radio />}
-              label="חניון שפירים - הנתיב המהיר (₪20)"
+              label={`חניון שפירים - הנתיב המהיר (₪${PRICE})`}
             />
             <FormControlLabel
               value="מחלף לטרון"
               control={<Radio />}
-              label="מחלף לטרון (₪15)"
+              label={`מחלף לטרון (₪${LATRUN_PRICE})`}
             />
             <FormControlLabel
               value="אני נוסע/ת רק חזור"
@@ -210,17 +251,17 @@ function BusRegister() {
             <FormControlLabel
               value="רכבת מרכז"
               control={<Radio />}
-              label="רכבת מרכז (₪20)"
+              label={`רכבת מרכז (₪${PRICE})`}
             />
             <FormControlLabel
               value="חניון שפירים"
               control={<Radio />}
-              label="חניון שפירים - הנתיב המהיר (₪20)"
+              label={`חניון שפירים - הנתיב המהיר (₪${PRICE})`}
             />
             <FormControlLabel
               value="מחלף לטרון"
               control={<Radio />}
-              label="מחלף לטרון (₪15)"
+              label={`מחלף לטרון (₪${LATRUN_PRICE})`}
             />
             <FormControlLabel
               value="אני נוסע/ת רק הלוך"
@@ -298,6 +339,10 @@ function BusRegister() {
             <FormLabel>{numMembers}</FormLabel>
           </div>
         )}
+        <div className={"NumMembers"}>
+          <FormLabel>מחיר: </FormLabel>
+          <FormLabel>₪{price}</FormLabel>
+        </div>
         {formik.touched.alightingStation &&
           Boolean(formik.errors.alightingStation) && (
             <FormHelperText error={true}>
@@ -338,6 +383,7 @@ function BusRegister() {
           numMembers: Math.min(numMembers, formik.values.numPassengers),
           sendMail: formik.values.sendMail,
           sentMail: false,
+          price: price,
         }}
         busDetails={state}
       />

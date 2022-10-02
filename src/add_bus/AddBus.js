@@ -23,6 +23,7 @@ import maccabiTlvLogo from "../assets/logo_maccabi_tlv.png";
 import nesZionaLogo from "../assets/logo_nes_ziona.png";
 import ludwigsburgLogo from "../assets/logo_ludwigsburg.png";
 import darussafakaLogo from "../assets/logo_darussafaka.png";
+import bakkenLogo from "../assets/logo_bakken.png";
 import { DesktopDatePicker, TimePicker } from "@mui/x-date-pickers";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
@@ -49,6 +50,7 @@ function AddBus() {
     { name: "עירוני קרית אתא", logo: kiryatAtaLogo },
     { name: "לודוויגסבורג", logo: ludwigsburgLogo },
     { name: "דרושאפקה", logo: darussafakaLogo },
+    { name: "באקן", logo: bakkenLogo },
   ];
   const validationSchema = yup.object({
     opponentName: yup.string().required("אנא בחר יריבה"),

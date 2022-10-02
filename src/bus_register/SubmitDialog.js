@@ -145,7 +145,10 @@ function SubmitDialog({
                     מס' נוסעים
                   </TableCell>
                   <TableCell align="right">
-                    {personalDetails.numPassengers}
+                    {personalDetails.numPassengers.toString() +
+                      " (מתוכם " +
+                      personalDetails.numMembers.toString() +
+                      " מנויים)"}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -168,7 +171,9 @@ function SubmitDialog({
                   <TableCell variant="head" align="right">
                     מחיר
                   </TableCell>
-                  <TableCell align="right">20</TableCell>
+                  <TableCell align="right">
+                    {personalDetails.price.toString() + "₪"}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

@@ -17,6 +17,7 @@ import maccabiTlvLogo from "../assets/logo_maccabi_tlv.png";
 import nesZionaLogo from "../assets/logo_nes_ziona.png";
 import ludwigsburgLogo from "../assets/logo_ludwigsburg.png";
 import darussafakaLogo from "../assets/logo_darussafaka.png";
+import bakkenLogo from "../assets/logo_bakken.png";
 
 function Home() {
   // const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
@@ -125,6 +126,8 @@ function Home() {
         return ludwigsburgLogo;
       case "דרושאפקה":
         return darussafakaLogo;
+      case "באקן":
+        return bakkenLogo;
       default:
         return "error";
     }
