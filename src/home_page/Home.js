@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { query, orderBy, collection, getDocs } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
+import dayjs from "dayjs";
 import eilatLogo from "../assets/logo_eilat.png";
 import beerShevaLogo from "../assets/logo_beer_sheva.png";
 import gilboaGalilLogo from "../assets/logo_gilboa_galil.png";
@@ -18,6 +19,8 @@ import nesZionaLogo from "../assets/logo_nes_ziona.png";
 import ludwigsburgLogo from "../assets/logo_ludwigsburg.png";
 import darussafakaLogo from "../assets/logo_darussafaka.png";
 import bakkenLogo from "../assets/logo_bakken.png";
+import googleMaps from "../assets/google_maps.png";
+import waze from "../assets/waze.png";
 
 function Home() {
   // const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
@@ -35,6 +38,13 @@ function Home() {
   //         }
   //     });
   // }
+  const timeToString = (date) => {
+    return (
+      date.toDate().getHours() +
+      ":" +
+      date.toDate().getMinutes().toString().padStart(2, "0")
+    );
+  };
   const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
   // const displayAsAdmin = user ? user.displayAsAdmin : false;
   const BusesRef = collection(db, "Buses");
@@ -49,14 +59,15 @@ function Home() {
         const busID = doc.id;
         const data = doc.data();
         const opponentName = data.opponent;
-        const gameTime =
-          data.game_time.toDate().getHours() +
-          ":" +
-          data.game_time.toDate().getMinutes().toString().padStart(2, "0");
-        const busTime =
-          data.bus_time.toDate().getHours() +
-          ":" +
-          data.bus_time.toDate().getMinutes().toString().padStart(2, "0");
+        const busTimeDayjs = dayjs(data.bus_time.toDate());
+        const mahirTime = busTimeDayjs.add(15, "m");
+        const latrunTime = busTimeDayjs.add(35, "m");
+        const gameTime = timeToString(data.game_time);
+        const busTime = {
+          merkaz: timeToString(data.bus_time),
+          mahir: timeToString(mahirTime),
+          latrun: timeToString(latrunTime),
+        };
         const gameDate =
           data.date.toDate().getDate() +
           "/" +
@@ -151,7 +162,7 @@ function Home() {
                 {convertNumToDayOfWeek(buses[0].gameDay)} {buses[0].gameDate}
               </p>
               <p>משחק: {buses[0].gameTime}</p>
-              <p>הסעה: {buses[0].busTime}</p>
+              <p>הסעה: {buses[0].busTime.merkaz}</p>
               <p>פיס ארנה</p>
             </div>
           </div>
@@ -188,7 +199,7 @@ function Home() {
                     {buses[index].gameDate}
                   </p>
                   <p>משחק: {buses[index].gameTime}</p>
-                  <p>הסעה: {buses[index].busTime}</p>
+                  <p>הסעה: {buses[index].busTime.merkaz}</p>
                   <p>פיס ארנה</p>
                 </div>
               </div>
@@ -215,10 +226,103 @@ function Home() {
       <p className="ContentSubtitle">מסלול:</p>
       <div className="GameCard">
         <ul>
-          <li>רכבת מרכז</li>
-          <li>חניון שפירים (הנתיב המהיר)</li>
-          <li>מחלף לטרון</li>
-          <li>פיס ארנה</li>
+          <li>
+            <div className={"StationInfo"}>
+              <p>רכבת מרכז</p>
+
+              <div className="NavigationLogoLinks">
+                <a
+                  href={
+                    "https://www.google.com/maps/place/32%C2%B004'57.3%22N+34%C2%B047'49.3%22E/@32.0825762,34.7948253,17z/data=!3m1!4b1!4m5!3m4!1s0x0:0x5b1fe893dfd911a3!8m2!3d32.0825762!4d34.797014"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={googleMaps} alt={""} className="NavigationLogo" />
+                </a>
+                <a
+                  href={
+                    "https://www.waze.com/en/live-map/directions?latlng=32.082567287017234%2C34.79709362931317"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={waze} alt={""} className="NavigationLogo" />
+                </a>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div className={"StationInfo"}>
+              <p>חניון שפירים - הנתיב המהיר</p>
+
+              <div className="NavigationLogoLinks">
+                <a
+                  href={"https://goo.gl/maps/uUs7XvzEDvEixndH7"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={googleMaps} alt={""} className="NavigationLogo" />
+                </a>
+                <a
+                  href={
+                    "https://www.waze.com/en/live-map/directions/%D7%97%D7%A0%D7%99%D7%95%D7%9F-%D7%94%D7%A0%D7%AA%D7%99%D7%91-%D7%94%D7%9E%D7%94%D7%99%D7%A8?place=w.22806848.228330624.298229"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={waze} alt={""} className="NavigationLogo" />
+                </a>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div className={"StationInfo"}>
+              <p>מחלף לטרון</p>
+              <div className="NavigationLogoLinks">
+                <a
+                  href={"https://goo.gl/maps/1G33UvGpp2kkDHDW6"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={googleMaps} alt={""} className="NavigationLogo" />
+                </a>
+                <a
+                  href={
+                    "https://www.waze.com/en/live-map/directions/%D7%9E%D7%97%D7%9C%D7%A3-%D7%9C%D7%98%D7%A8%D7%95%D7%9F?place=ChIJh1AfvQbPAhURGFSRRg7dSe0"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={waze} alt={""} className="NavigationLogo" />
+                </a>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div className={"StationInfo"}>
+              <p>פיס ארנה</p>
+
+              <div className="NavigationLogoLinks">
+                <a
+                  href={"https://goo.gl/maps/SmQ2Lhx7aAcRqUmWA"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={googleMaps} alt={""} className="NavigationLogo" />
+                </a>
+                <a
+                  href={
+                    "https://www.waze.com/en/live-map/directions/%D7%97%D7%A0%D7%99%D7%95%D7%9F-%D7%A4%D7%99%D7%A1-%D7%90%D7%A8%D7%A0%D7%94-%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D?place=w.23068990.230624359.64807"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={waze} alt={""} className="NavigationLogo" />
+                </a>
+              </div>
+            </div>
+          </li>
         </ul>
       </div>
       <p className="ContentSubtitle">מחירון:</p>

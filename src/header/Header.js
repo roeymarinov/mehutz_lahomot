@@ -93,7 +93,7 @@ function Header() {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={closeProfileMenu}>העדפות אישיות</MenuItem>
+        <MenuItem onClick={closeProfileMenu}>הגדרות (בקרוב!)</MenuItem>
         <MenuItem onClick={signOutUser}>התנתקות</MenuItem>
       </Menu>
     </div>

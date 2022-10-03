@@ -20,6 +20,8 @@ import { db } from "../utils/firebase";
 import * as yup from "yup";
 import { useFormik, yupToFormErrors } from "formik";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
+import googleMaps from "../assets/google_maps.png";
+import waze from "../assets/waze.png";
 const LATRUN_PRICE = 15;
 const PRICE = 20;
 
@@ -191,11 +193,101 @@ function BusRegister() {
       </div>
       <div className="InfoCard">
         <div>
-          <p>שעת המשחק: {gameTime}</p>
-          <p>יציאה מרכבת מרכז: {busTime}</p>
-          <p>
-            ₪{PRICE}/₪{LATRUN_PRICE} לכיוון
-          </p>
+          <div className={"InfoCardTitle"}>
+            <h3>שעת המשחק: {gameTime}</h3>
+            <h3>
+              ₪{PRICE}/₪{LATRUN_PRICE} לכיוון
+            </h3>
+          </div>
+          <div className={"StationInfo"}>
+            <p>יציאה מרכבת מרכז: {busTime.merkaz}</p>
+
+            <div className="NavigationLogoLinks">
+              <a
+                href={
+                  "https://www.google.com/maps/place/32%C2%B004'57.3%22N+34%C2%B047'49.3%22E/@32.0825762,34.7948253,17z/data=!3m1!4b1!4m5!3m4!1s0x0:0x5b1fe893dfd911a3!8m2!3d32.0825762!4d34.797014"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={googleMaps} alt={""} className="NavigationLogo" />
+              </a>
+              <a
+                href={
+                  "https://www.waze.com/en/live-map/directions?latlng=32.082567287017234%2C34.79709362931317"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={waze} alt={""} className="NavigationLogo" />
+              </a>
+            </div>
+          </div>
+          <div className={"StationInfo"}>
+            <p>חניון שפירים - הנתיב המהיר: {busTime.mahir} (משוער)</p>
+
+            <div className="NavigationLogoLinks">
+              <a
+                href={"https://goo.gl/maps/uUs7XvzEDvEixndH7"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={googleMaps} alt={""} className="NavigationLogo" />
+              </a>
+              <a
+                href={
+                  "https://www.waze.com/en/live-map/directions/%D7%97%D7%A0%D7%99%D7%95%D7%9F-%D7%94%D7%A0%D7%AA%D7%99%D7%91-%D7%94%D7%9E%D7%94%D7%99%D7%A8?place=w.22806848.228330624.298229"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={waze} alt={""} className="NavigationLogo" />
+              </a>
+            </div>
+          </div>
+          <div className={"StationInfo"}>
+            <p>מחלף לטרון: {busTime.latrun} (משוער)</p>
+            <div className="NavigationLogoLinks">
+              <a
+                href={"https://goo.gl/maps/1G33UvGpp2kkDHDW6"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={googleMaps} alt={""} className="NavigationLogo" />
+              </a>
+              <a
+                href={
+                  "https://www.waze.com/en/live-map/directions/%D7%9E%D7%97%D7%9C%D7%A3-%D7%9C%D7%98%D7%A8%D7%95%D7%9F?place=ChIJh1AfvQbPAhURGFSRRg7dSe0"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={waze} alt={""} className="NavigationLogo" />
+              </a>
+            </div>
+          </div>
+          <div className={"StationInfo"}>
+            <p>איסוף מחניון המשק: 10 דק' מתום המשחק</p>
+
+            <div className="NavigationLogoLinks">
+              <a
+                href={"https://goo.gl/maps/SmQ2Lhx7aAcRqUmWA"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={googleMaps} alt={""} className="NavigationLogo" />
+              </a>
+              <a
+                href={
+                  "https://www.waze.com/en/live-map/directions/%D7%97%D7%A0%D7%99%D7%95%D7%9F-%D7%A4%D7%99%D7%A1-%D7%90%D7%A8%D7%A0%D7%94-%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D?place=w.23068990.230624359.64807"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={waze} alt={""} className="NavigationLogo" />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
       <form

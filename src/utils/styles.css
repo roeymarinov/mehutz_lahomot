@@ -14,6 +14,7 @@
     width: 15vh;
     height: 15vh;
     align-self: center;
+    margin-right: 15px;
 }
 
 .GameCard {
@@ -46,7 +47,7 @@
     flex-direction: column;
     text-align: right;
     margin-right: 1vw;
-    margin-left: 5vw;
+    margin-left: 20px;
     margin-bottom: 2vh;
 }
 
@@ -87,13 +88,15 @@
 }
 
 .GameCard ul {
-    margin-left: 5vw;
 }
 
 .GameCard ul li {
     margin-bottom: 1vh;
+    margin-left: 15px;
 }
-
+.GameCard ul li p{
+    margin-left: 15px;
+}
 
 .Header {
     display: flex;
@@ -247,6 +250,7 @@
     flex-direction: column;
     text-align: right;
     margin: 0 7vw;
+    padding-bottom: 15px;
 }
 
 .FormTitle {
@@ -260,14 +264,20 @@
 
 .InfoCard p {
     font-size: 16px;
-    margin-top: 0;
-    margin-right: 5vw;
-    margin-left: 5vw;
+    margin: 0 15px;
+}
+.InfoCard h3 {
+    font-size: 16px;
 }
 
 .InfoCard div {
     margin-top: 2vh;
-    margin-bottom: 0;
+    margin-bottom: 0px;
+}
+.InfoCardTitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
 }
 
 .BusForm {
@@ -374,4 +384,30 @@
 .OpponentMenuItem {
     display: flex;
     flex-direction: row;
+}
+
+.StationInfo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /*border-bottom: solid;*/
+    /*border-bottom-width: 1px;*/
+    /*border-bottom-color: white;*/
+}
+
+.NavigationLogo {
+    width: 30px;
+    height: 30px;
+    margin-left: 15px;
+    margin-top: 0;
+    cursor: pointer;
+
+}
+
+.NavigationLogoLinks {
+    display: flex;
+    flex-direction: row;
+    margin-right: auto;
+    margin-top: 0;
+    margin-left: 0;
 }

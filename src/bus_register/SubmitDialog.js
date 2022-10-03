@@ -120,7 +120,9 @@ function SubmitDialog({
                   <TableCell variant="head" align="right">
                     שעת יציאה
                   </TableCell>
-                  <TableCell align="right">{busDetails.busTime}</TableCell>
+                  <TableCell align="right">
+                    {busDetails.busTime.merkaz}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell variant="head" align="right">
