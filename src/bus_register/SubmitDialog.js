@@ -197,8 +197,27 @@ function SubmitDialog({
         <div className="SubmitDialog">
           <p className="DialogTitle">שימו לב!</p>
           <ul className="AttentionDetails">
+            <li>
+              אם אינכם מנויי הסעה וטרם שילמתם,{" "}
+              <b>
+                יש לשלם דרך{" "}
+                <a
+                  href={
+                    "https://web.payboxapp.com/?v=j&g=61547de7df517a0008bdb060#/"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="RegisterText"
+                >
+                  פייבוקס
+                </a>
+              </b>
+            </li>
+            <li>
+              מי שלא שילם, <b>מקומו לא יישמר!</b>
+            </li>
             <li>ההסעה יוצאת בזמן - אין המתנה למאחרים</li>
-            <li>ההסעה חזור יוצאת מחניית השחקנים בארנה</li>
+            <li>ההסעה חזור יוצאת מחניית השחקנים בארנה, כ-10 דק' מתום המשחק</li>
             <li>לשאלות ולפרטים נוספים ניתן לפנות לניב - 0503511920</li>
           </ul>
           <div className={"ConfirmCancel"}>

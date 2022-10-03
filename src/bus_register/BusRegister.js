@@ -199,6 +199,21 @@ function BusRegister() {
               ₪{PRICE}/₪{LATRUN_PRICE} לכיוון
             </h3>
           </div>
+          <div className="InfoCardTitle">
+            <div className={"NoUserText"}>
+              <p style={{ margin: 0 }}>תשלום דרך&nbsp;</p>
+              <a
+                href={
+                  "https://web.payboxapp.com/?v=j&g=61547de7df517a0008bdb060#/"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="RegisterText"
+              >
+                פייבוקס
+              </a>
+            </div>
+          </div>
           <div className={"StationInfo"}>
             <p>יציאה מרכבת מרכז: {busTime.merkaz}</p>
 
@@ -267,7 +282,7 @@ function BusRegister() {
             </div>
           </div>
           <div className={"StationInfo"}>
-            <p>איסוף מחניון המשק: 10 דק' מתום המשחק</p>
+            <p>איסוף מחניית השחקנים: 10 דק' מתום המשחק</p>
 
             <div className="NavigationLogoLinks">
               <a

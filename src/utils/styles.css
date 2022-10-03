@@ -271,8 +271,8 @@
 }
 
 .InfoCard div {
-    margin-top: 2vh;
-    margin-bottom: 0px;
+    /*margin-top: 2vh;*/
+    margin-bottom: 0;
 }
 .InfoCardTitle {
     display: flex;
@@ -319,9 +319,6 @@
     color: black;
 }
 
-.NMTitle {
-
-}
 
 .SubmitButton {
     align-self: center;
@@ -349,6 +346,10 @@
 .AttentionDetails {
     margin-top: 0;
     margin-left: 5vw;
+}
+
+.AttentionDetails li {
+    margin-top: 5px;
 }
 
 .ConfirmCancel {
@@ -390,6 +391,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-top: 15px;
     /*border-bottom: solid;*/
     /*border-bottom-width: 1px;*/
     /*border-bottom-color: white;*/
