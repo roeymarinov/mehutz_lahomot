@@ -1,7 +1,14 @@
 import "../utils/styles.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { query, orderBy, collection, getDocs } from "firebase/firestore";
+import {
+  query,
+  where,
+  orderBy,
+  collection,
+  getDocs,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
 import dayjs from "dayjs";
@@ -48,7 +55,11 @@ function Home() {
   const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
   // const displayAsAdmin = user ? user.displayAsAdmin : false;
   const BusesRef = collection(db, "Buses");
-  const q = query(BusesRef, orderBy("date"));
+  const nowDate = Timestamp.now().toDate();
+  nowDate.setHours(0, 0, 0, 0);
+  const nowStamp = Timestamp.fromDate(nowDate);
+  console.log(nowStamp.toDate());
+  const q = query(BusesRef, where("date", ">", nowStamp), orderBy("date"));
   useEffect(() => {
     if (user) {
       setDisplayAsAdmin(user.displayAsAdmin);
