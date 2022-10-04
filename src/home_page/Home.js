@@ -241,9 +241,7 @@ function Home() {
                   <img src={googleMaps} alt={""} className="NavigationLogo" />
                 </a>
                 <a
-                  href={
-                    "https://www.waze.com/en/live-map/directions?latlng=32.082567287017234%2C34.79709362931317"
-                  }
+                  href={"https://waze.com/ul/hsv8wxb6kg"}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -258,16 +256,14 @@ function Home() {
 
               <div className="NavigationLogoLinks">
                 <a
-                  href={"https://goo.gl/maps/uUs7XvzEDvEixndH7"}
+                  href={"https://maps.app.goo.gl/uH6yxTU5ZQRzWCj98"}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <img src={googleMaps} alt={""} className="NavigationLogo" />
                 </a>
                 <a
-                  href={
-                    "https://www.waze.com/en/live-map/directions/%D7%97%D7%A0%D7%99%D7%95%D7%9F-%D7%94%D7%A0%D7%AA%D7%99%D7%91-%D7%94%D7%9E%D7%94%D7%99%D7%A8?place=w.22806848.228330624.298229"
-                  }
+                  href={"https://waze.com/ul/hsv8y0cshq"}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -288,9 +284,7 @@ function Home() {
                   <img src={googleMaps} alt={""} className="NavigationLogo" />
                 </a>
                 <a
-                  href={
-                    "https://www.waze.com/en/live-map/directions/%D7%9E%D7%97%D7%9C%D7%A3-%D7%9C%D7%98%D7%A8%D7%95%D7%9F?place=ChIJh1AfvQbPAhURGFSRRg7dSe0"
-                  }
+                  href={"https://waze.com/ul/hsv8vhhh6z"}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -312,9 +306,7 @@ function Home() {
                   <img src={googleMaps} alt={""} className="NavigationLogo" />
                 </a>
                 <a
-                  href={
-                    "https://www.waze.com/en/live-map/directions/%D7%97%D7%A0%D7%99%D7%95%D7%9F-%D7%A4%D7%99%D7%A1-%D7%90%D7%A8%D7%A0%D7%94-%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D?place=w.23068990.230624359.64807"
-                  }
+                  href={"https://waze.com/ul/hsv9h8u504"}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
