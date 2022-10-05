@@ -427,3 +427,7 @@
 .PhoneInfoIcon {
     margin-right: 5px;
 }
+
+.PhoneInfoText {
+    padding: 2px 5px;
+}

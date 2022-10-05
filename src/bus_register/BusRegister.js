@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Checkbox,
   Popover,
+  Typography,
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import SubmitDialog from "./SubmitDialog";
@@ -522,7 +523,13 @@ function BusRegister() {
               onClose={handlePopoverClose}
               disableRestoreFocus
             >
-              טלפון בלה בלה בלה
+              <Typography className={"PhoneInfoText"}>
+                {" "}
+                אנו נשתמש בטלפון זה רק
+              </Typography>
+              <Typography className={"PhoneInfoText"}>
+                לצורך תיאום ההגעה להסעה
+              </Typography>
             </Popover>
             <HelpOutlineIcon
               color={"inherit"}
