@@ -28,6 +28,7 @@ import darussafakaLogo from "../assets/logo_darussafaka.png";
 import bakkenLogo from "../assets/logo_bakken.png";
 import googleMaps from "../assets/google_maps.png";
 import waze from "../assets/waze.png";
+import { CircularProgress } from "@mui/material";
 
 function Home() {
   // const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
@@ -53,7 +54,7 @@ function Home() {
     );
   };
   const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
-  // const displayAsAdmin = user ? user.displayAsAdmin : false;
+  const [loadingBuses, setLoadingBuses] = useState(true);
   const BusesRef = collection(db, "Buses");
   const nowDate = Timestamp.now().toDate();
   nowDate.setHours(0, 0, 0, 0);
@@ -85,6 +86,13 @@ function Home() {
           (parseInt(data.date.toDate().getMonth()) + 1).toString();
         const gameDay = data.date.toDate().getDay();
         const isBusFull = data.total_passengers >= data.max_passengers;
+        let isUserRegistered = false;
+
+        if (user) {
+          const registeredUsers = data.registered_users;
+          isUserRegistered =
+            registeredUsers[user.email.replaceAll(".", "@")] !== undefined;
+        }
         busesArray.push({
           opponentName: opponentName,
           gameDate: gameDate,
@@ -93,9 +101,11 @@ function Home() {
           busTime: busTime,
           busID: busID,
           isBusFull: isBusFull,
+          isUserRegistered: isUserRegistered,
         });
       });
       setBuses(busesArray);
+      setLoadingBuses(false);
     });
   }, [user]);
 
@@ -158,6 +168,7 @@ function Home() {
   return (
     <div className="Home">
       <p className="ContentSubtitle">ההסעה הקרובה:</p>
+      {loadingBuses && <CircularProgress className={"LoadingBuses"} />}
       {buses.length > 0 && (
         <div className="GameCard">
           <div className="LogoInfo">
@@ -185,7 +196,11 @@ function Home() {
             }}
           >
             {" "}
-            {buses[0].isBusFull ? "ההסעה מלאה" : "לפרטים והרשמה"}
+            {buses[0].isUserRegistered
+              ? "עריכת רישום"
+              : buses[0].isBusFull
+              ? "ההסעה מלאה"
+              : "לפרטים והרשמה"}
           </button>
         </div>
       )}
@@ -222,7 +237,11 @@ function Home() {
                 }}
               >
                 {" "}
-                {buses[index].isBusFull ? "ההסעה מלאה" : "לפרטים והרשמה"}
+                {buses[index].isUserRegistered
+                  ? "עריכת רישום"
+                  : buses[index].isBusFull
+                  ? "ההסעה מלאה"
+                  : "לפרטים והרשמה"}
               </button>
             </div>
           );

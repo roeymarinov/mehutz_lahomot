@@ -11,15 +11,17 @@ import {
   FormHelperText,
   CircularProgress,
   Checkbox,
+  Popover,
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import SubmitDialog from "./SubmitDialog";
 import { useLocation } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import * as yup from "yup";
 import { useFormik, yupToFormErrors } from "formik";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import googleMaps from "../assets/google_maps.png";
 import waze from "../assets/waze.png";
 const LATRUN_PRICE = 15;
@@ -33,7 +35,7 @@ function BusRegister() {
   const [numPassengersArray, setNumPassengersArray] = useState([0]);
   const [numMembers, setNumMembers] = useState(0);
   const [price, setPrice] = useState(0);
-
+  console.log(user);
   const validationSchema = yup.object({
     email: yup
       .string()
@@ -51,15 +53,17 @@ function BusRegister() {
       .required("אנא הכניס טלפון נייד"),
     numPassengers: yup.string().required("אנא בחרו מס' נוסעים"),
   });
+
   const formik = useFormik({
     initialValues: {
-      email: "",
-      name: "",
+      email: user ? user.email : "",
+      name: user ? user.displayName : "",
       phone: "",
       numPassengers: "",
       boardingStation: "רכבת מרכז",
       alightingStation: "רכבת מרכז",
       sendMail: true,
+      saveDetails: false,
     },
     validate: async (values) => {
       const errors = {};
@@ -84,6 +88,9 @@ function BusRegister() {
       const isEmailOk = await checkEmail(values.email);
       if (isEmailOk) {
         setSubmitDialogOpen(true);
+        if (values.saveDetails) {
+          await setPreferences(values.email);
+        }
       } else {
         setErrors({ email: "כתובת המייל הזו כבר רשומה להסעה" });
       }
@@ -99,6 +106,31 @@ function BusRegister() {
       return registeredUsers[email.replaceAll(".", "@")] === undefined;
     }
   };
+
+  async function setPreferences(email) {
+    const userRef = doc(db, "Users", email);
+
+    await updateDoc(userRef, {
+      preferences: {
+        name: formik.values.name,
+        alightingStation: formik.values.alightingStation,
+        boardingStation: formik.values.boardingStation,
+        numPassengers: formik.values.numPassengers,
+        email: formik.values.email,
+        phone: formik.values.phone,
+        sendMail: formik.values.sendMail,
+      },
+    });
+  }
+
+  async function getPreferences(email) {
+    const userRef = doc(db, "Users", email);
+    const docSnap = await getDoc(userRef);
+    if (docSnap.exists()) {
+      return docSnap.data().preferences;
+    }
+    return null;
+  }
 
   const calculatePrice = (
     numPassengers,
@@ -153,13 +185,61 @@ function BusRegister() {
       );
     }
   };
+  const [anchorElementPopover, setAnchorElementPopover] = useState(null);
+  const handlePopoverOpen = (event) => {
+    setAnchorElementPopover(event.currentTarget);
+  };
 
+  const handlePopoverClose = () => {
+    setAnchorElementPopover(null);
+  };
+
+  const togglePopover = (event) => {
+    console.log("toggle");
+    if (anchorElementPopover) {
+      setAnchorElementPopover(null);
+    } else {
+      setAnchorElementPopover(event.currentTarget);
+    }
+  };
+
+  const open = Boolean(anchorElementPopover);
   useEffect(() => {
     if (user) {
       getNumMembers(user.email).then((num) => {
         if (numMembers !== num) {
           setNumMembers(num);
         }
+      });
+      getPreferences(user.email).then((preferences) => {
+        formik.setValues({
+          alightingStation:
+            preferences.alightingStation !== undefined
+              ? preferences.alightingStation
+              : formik.values.alightingStation,
+          boardingStation:
+            preferences.boardingStation !== undefined
+              ? preferences.boardingStation
+              : formik.values.boardingStation,
+          sendMail:
+            preferences.sendMail !== undefined
+              ? preferences.sendMail
+              : formik.values.sendMail,
+          phone:
+            preferences.phone !== undefined
+              ? preferences.phone
+              : formik.values.phone,
+          numPassengers:
+            preferences.numPassengers !== undefined
+              ? preferences.numPassengers
+              : formik.values.numPassengers,
+          saveDetails: formik.values.saveDetails,
+          name:
+            preferences.name !== undefined
+              ? preferences.name
+              : user.displayName,
+          email: user.email,
+        });
       });
     }
     if (formik.values.numPassengers === "") {
@@ -368,7 +448,7 @@ function BusRegister() {
               label="אני נוסע/ת רק הלוך"
             />
           </RadioGroup>
-
+          <FormLabel id="demo-radio-buttons-group-label">מס' נוסעים</FormLabel>
           <div className="NumPassengers">
             <Select
               id="numPassengers"
@@ -398,10 +478,11 @@ function BusRegister() {
                 </FormHelperText>
               )}
           </div>
+          <FormLabel id="demo-radio-buttons-group-label">שם מלא </FormLabel>
           <TextField
             id="name"
             name="name"
-            placeholder="שם מלא"
+            // placeholder={user ? user.name : "שם מלא"}
             margin="dense"
             autoComplete="off"
             value={formik.values.name}
@@ -409,17 +490,49 @@ function BusRegister() {
             onChange={formik.handleChange}
             helperText={formik.touched.name && formik.errors.name}
           />
+          <FormLabel id="demo-radio-buttons-group-label">מייל </FormLabel>
           <TextField
             id="email"
             name="email"
-            placeholder="מייל"
+            placeholder={user ? user.email : "מייל"}
             margin="dense"
             autoComplete="off"
+            disabled={user ? user.email !== undefined : false}
             value={formik.values.email}
             error={formik.touched.email && Boolean(formik.errors.email)}
             onChange={formik.handleChange}
             helperText={formik.touched.email && formik.errors.email}
           />
+          <FormLabel className={"PhoneLabel"}>
+            טלפון נייד{" "}
+            <Popover
+              sx={{
+                pointerEvents: "none",
+              }}
+              open={open}
+              anchorEl={anchorElementPopover}
+              anchorOrigin={{
+                vertical: "center",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "center",
+                horizontal: "right",
+              }}
+              onClose={handlePopoverClose}
+              disableRestoreFocus
+            >
+              טלפון בלה בלה בלה
+            </Popover>
+            <HelpOutlineIcon
+              color={"inherit"}
+              fontSize={"medium"}
+              className={"PhoneInfoIcon"}
+              onMouseEnter={handlePopoverOpen}
+              onMouseLeave={handlePopoverClose}
+              onClick={togglePopover}
+            />
+          </FormLabel>
           <TextField
             id="phone"
             name="phone"
@@ -460,6 +573,18 @@ function BusRegister() {
             />
           }
           label="שלחו לי מייל אישור עם פרטי ההסעה"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              id={"saveDetails"}
+              name={"saveDetails"}
+              disabled={!user}
+              value={formik.values.saveDetails}
+              onChange={formik.handleChange}
+            />
+          }
+          label="שמירת פרטים להסעות הבאות"
         />
         <button className="SubmitButton" type={"submit"}>
           {formik.isSubmitting ? (
