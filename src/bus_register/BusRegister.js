@@ -186,16 +186,22 @@ function BusRegister() {
       );
     }
   };
-  const [anchorElementPopover, setAnchorElementPopover] = useState(null);
-  const handlePopoverOpen = (event) => {
+  const [anchorSavePopover, setAnchorSavePopover] = useState(null);
+  const [anchorPhonePopover, setAnchorPhonePopover] = useState(null);
+
+  const handlePopoverOpen = (event, setAnchorElementPopover) => {
     setAnchorElementPopover(event.currentTarget);
   };
 
-  const handlePopoverClose = () => {
+  const handlePopoverClose = (setAnchorElementPopover) => {
     setAnchorElementPopover(null);
   };
 
-  const togglePopover = (event) => {
+  const togglePopover = (
+    event,
+    anchorElementPopover,
+    setAnchorElementPopover
+  ) => {
     console.log("toggle");
     if (anchorElementPopover) {
       setAnchorElementPopover(null);
@@ -204,7 +210,9 @@ function BusRegister() {
     }
   };
 
-  const open = Boolean(anchorElementPopover);
+  const savePopoverOpen = Boolean(anchorSavePopover);
+  const phonePopoverOpen = Boolean(anchorPhonePopover);
+
   useEffect(() => {
     if (user) {
       getNumMembers(user.email).then((num) => {
@@ -510,8 +518,8 @@ function BusRegister() {
               sx={{
                 pointerEvents: "none",
               }}
-              open={open}
-              anchorEl={anchorElementPopover}
+              open={phonePopoverOpen}
+              anchorEl={anchorPhonePopover}
               anchorOrigin={{
                 vertical: "center",
                 horizontal: "left",
@@ -520,7 +528,7 @@ function BusRegister() {
                 vertical: "center",
                 horizontal: "right",
               }}
-              onClose={handlePopoverClose}
+              onClose={() => handlePopoverClose(setAnchorPhonePopover)}
               disableRestoreFocus
             >
               <Typography className={"PhoneInfoText"}>
@@ -535,9 +543,13 @@ function BusRegister() {
               color={"inherit"}
               fontSize={"medium"}
               className={"PhoneInfoIcon"}
-              onMouseEnter={handlePopoverOpen}
-              onMouseLeave={handlePopoverClose}
-              onClick={togglePopover}
+              onMouseEnter={(event) =>
+                handlePopoverOpen(event, setAnchorPhonePopover)
+              }
+              onMouseLeave={() => handlePopoverClose(setAnchorPhonePopover)}
+              onClick={(event) =>
+                togglePopover(event, anchorPhonePopover, setAnchorPhonePopover)
+              }
             />
           </FormLabel>
           <TextField
@@ -581,18 +593,61 @@ function BusRegister() {
           }
           label="שלחו לי מייל אישור עם פרטי ההסעה"
         />
-        <FormControlLabel
-          control={
-            <Checkbox
-              id={"saveDetails"}
-              name={"saveDetails"}
-              disabled={!user}
-              value={formik.values.saveDetails}
-              onChange={formik.handleChange}
-            />
-          }
-          label="שמירת פרטים להסעות הבאות"
-        />
+        <div className={"Checkbox"}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                id={"saveDetails"}
+                name={"saveDetails"}
+                disabled={!user}
+                value={formik.values.saveDetails}
+                onChange={formik.handleChange}
+              />
+            }
+            label="שמירת פרטים להסעות הבאות"
+          />
+          <Popover
+            sx={{
+              pointerEvents: "none",
+            }}
+            open={savePopoverOpen}
+            anchorEl={anchorSavePopover}
+            anchorOrigin={{
+              vertical: "center",
+              horizontal: "left",
+            }}
+            transformOrigin={{
+              vertical: "center",
+              horizontal: "right",
+            }}
+            onClose={() => handlePopoverClose(setAnchorSavePopover)}
+            disableRestoreFocus
+          >
+            <Typography className={"PhoneInfoText"}>
+              {" "}
+              שמירת כל פרטי הרישום (מס' נוסעים, תחנות, שם וכו') כך שלא תצטרכו
+              להכניסם שוב בפעם הבאה.{" "}
+            </Typography>
+            <Typography className={"PhoneInfoText"}>
+              ניתן לערוך את הפרטים בכל עת דרך ההגדרות.{" "}
+            </Typography>
+            <Typography className={"PhoneInfoText"}>
+              אופציה זו ניתנת רק למשתמשים מחוברים.{" "}
+            </Typography>
+          </Popover>
+          <HelpOutlineIcon
+            color={"inherit"}
+            fontSize={"medium"}
+            className={"CheckboxInfoIcon"}
+            onMouseEnter={(event) =>
+              handlePopoverOpen(event, setAnchorSavePopover)
+            }
+            onMouseLeave={() => handlePopoverClose(setAnchorSavePopover)}
+            onClick={(event) =>
+              togglePopover(event, anchorSavePopover, setAnchorSavePopover)
+            }
+          />
+        </div>
         <button className="SubmitButton" type={"submit"}>
           {formik.isSubmitting ? (
             <CircularProgress size={"1em"} color={"info"} />

@@ -308,14 +308,23 @@ exports.registerUser = functions.firestore
         (parseInt(data.date.toDate().getMonth()) + 1).toString(),
       opponent: data.opponent,
       gameTime:
-        data.game_time.toDate().getHours() +
+        data.game_time.toDate().toLocaleString("en-US", {
+          hour: "2-digit",
+          hour12: false,
+          timeZone: "Asia/Jerusalem",
+        }) +
         ":" +
         data.game_time.toDate().getMinutes().toString().padStart(2, "0"),
       busTime:
-        data.bus_time.toDate().getHours() +
+        data.bus_time.toDate().toLocaleString("en-US", {
+          hour: "2-digit",
+          hour12: false,
+          timeZone: "Asia/Jerusalem",
+        }) +
         ":" +
         data.bus_time.toDate().getMinutes().toString().padStart(2, "0"),
     };
+
     return authorize()
       .then(() => {
         Object.entries(newUsers).forEach(([emailat, userDetails]) => {

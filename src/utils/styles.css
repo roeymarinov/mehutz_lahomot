@@ -431,3 +431,12 @@
 .PhoneInfoText {
     padding: 2px 5px;
 }
+
+.Checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.CheckboxInfoIcon {
+    margin-right: 15px;
+}
