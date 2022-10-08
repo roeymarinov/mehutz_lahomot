@@ -8,7 +8,7 @@ admin.initializeApp();
 const path = require("path");
 const process = require("process");
 const { google } = require("googleapis");
-const MailComposer = require("nodemailer/lib/mail-composer");
+//const MailComposer = require("nodemailer/lib/mail-composer");
 
 // If modifying these scopes, delete token.json.
 //const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
@@ -21,6 +21,7 @@ const CREDENTIALS_PATH = path.join(
   "mehutz-lahomot-7b68b8f7834c.json"
 );
 const { GoogleAuth } = require("google-auth-library");
+const util = require("util");
 
 const auth = new GoogleAuth({
   keyFile: CREDENTIALS_PATH,
@@ -42,32 +43,32 @@ AWS.config.loadFromPath("./aws_credentials.json");
 async function authorize() {
   return await auth.getClient();
 }
-const encodeMessage = (message) => {
-  return Buffer.from(message)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-};
+// const encodeMessage = (message) => {
+//   return Buffer.from(message)
+//     .toString("base64")
+//     .replace(/\+/g, "-")
+//     .replace(/\//g, "_")
+//     .replace(/=+$/, "");
+// };
 
-const createMail = async (options) => {
-  const mailComposer = new MailComposer(options);
-  const message = await mailComposer.compile().build();
-  return encodeMessage(message);
-};
+// const createMail = async (options) => {
+//   const mailComposer = new MailComposer(options);
+//   const message = await mailComposer.compile().build();
+//   return encodeMessage(message);
+// };
 
-const sendMail = async (options) => {
-  await authClient.authorize(); // once authorized, can do whatever you want
-  const gmail = google.gmail({ version: "v1", auth: authClient });
-  const rawMessage = await createMail(options);
-  const { data: { id } = {} } = await gmail.users.messages.send({
-    userId: "me",
-    resource: {
-      raw: rawMessage,
-    },
-  });
-  return id;
-};
+// const sendMail = async (options) => {
+//   await authClient.authorize(); // once authorized, can do whatever you want
+//   const gmail = google.gmail({ version: "v1", auth: authClient });
+//   const rawMessage = await createMail(options);
+//   const { data: { id } = {} } = await gmail.users.messages.send({
+//     userId: "me",
+//     resource: {
+//       raw: rawMessage,
+//     },
+//   });
+//   return id;
+// };
 
 async function sendSummaryEmail(userEmail, userDetails, gameDetails) {
   console.log("sending email to", userEmail);
@@ -221,6 +222,60 @@ async function appendRows(spreadsheetId, range, valueInputOption, values) {
   }
 }
 
+async function getValues(spreadsheetId, range, majorDimension) {
+  // const {GoogleAuth} = require('google-auth-library');
+  // const {google} = require('googleapis');
+
+  // const auth = new GoogleAuth({
+  //   scopes: 'https://www.googleapis.com/auth/spreadsheets',
+  // });
+
+  const service = google.sheets({ version: "v4", auth });
+  try {
+    const result = await service.spreadsheets.values.get({
+      spreadsheetId,
+      range,
+      majorDimension,
+    });
+    const numRows = result.data.values ? result.data.values.length : 0;
+    console.log(`${numRows} rows retrieved.`);
+    return result;
+  } catch (err) {
+    // TODO (developer) - Handle exception
+    throw err;
+  }
+}
+
+async function updateUserDetails(email, newDetailsRow, title) {
+  const response = await getValues(
+    SPREADSHEET_ID,
+    "'" + title + "'!B:B",
+    "COLUMNS"
+  );
+
+  const index = response.data.values[0].indexOf(email);
+  console.log(index);
+  console.log(email);
+  console.log(response.data.values);
+  if (index === -1) {
+    await appendRows(
+      SPREADSHEET_ID,
+      "'" + title + "'!A:K",
+      "RAW",
+      newDetailsRow
+    );
+  } else {
+    const rowNum = (index + 1).toString();
+    console.log("'" + title + "'!A" + rowNum + ":K" + rowNum);
+    await updateValues(
+      SPREADSHEET_ID,
+      "'" + title + "'!A" + rowNum + ":K" + rowNum,
+      "RAW",
+      newDetailsRow
+    );
+  }
+}
+
 exports.createNewBusSheet = functions.firestore
   .document("/Buses/{busId}")
   .onCreate((snap, context) => {
@@ -294,6 +349,16 @@ exports.registerUser = functions.firestore
     const keys = Object.keys(registeredUsersBefore);
     for (const key in registeredUsersAfter) {
       if (!keys.includes(key)) {
+        newUsers[key] = registeredUsersAfter[key];
+        console.log("new registration");
+      } else if (
+        !util.isDeepStrictEqual(
+          registeredUsersBefore[key],
+          registeredUsersAfter[key]
+        )
+      ) {
+        console.log("update registration");
+        console.log(registeredUsersAfter[key], registeredUsersBefore[key]);
         newUsers[key] = registeredUsersAfter[key];
       }
     }
@@ -370,7 +435,7 @@ exports.registerUser = functions.firestore
               latrun,
             ],
           ];
-          appendRows(SPREADSHEET_ID, "'" + title + "'!A:K", "RAW", row)
+          updateUserDetails(email, row, title)
             .catch(console.error)
             .then(() => {
               if (userDetails.sendMail && !userDetails.sentMail) {

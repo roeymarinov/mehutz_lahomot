@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { useState } from "react";
-import { doc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteField, getDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { Link } from "react-router-dom";
 
@@ -34,36 +34,78 @@ function SubmitDialog({
     setLoading(true);
     const busRef = doc(db, "Buses", busDetails.busID);
     const docSnap = await getDoc(busRef);
+    const registeredUsers = docSnap.data().registered_users;
+    const userAlreadyRegistered =
+      registeredUsers[personalDetails.email.replaceAll(".", "@")] !== undefined;
     if (docSnap.exists()) {
       const data = docSnap.data();
       const maxPassengers = docSnap.data().max_passengers;
-      const totalPassengersToGame =
+      let totalPassengersToGame = data.totals.toGame,
+        totalPassengersFromGame = data.totals.fromGame,
+        totalPassengersMerkaz = data.totals.merkaz,
+        totalPassengersMahir = data.totals.mahir,
+        totalPassengersLatrun = data.totals.latrun,
+        totalMembers = data.totals.members,
+        totalOneTime = data.totals.oneTime;
+      if (userAlreadyRegistered) {
+        const previousDetails =
+          registeredUsers[personalDetails.email.replaceAll(".", "@")];
+        totalPassengersToGame =
+          previousDetails.boardingStation === "אני נוסע/ת רק חזור"
+            ? data.totals.toGame
+            : data.totals.toGame - previousDetails.numPassengers;
+        totalPassengersFromGame =
+          previousDetails.alightingStation === "אני נוסע/ת רק הלוך"
+            ? data.totals.fromGame
+            : data.totals.fromGame - previousDetails.numPassengers;
+        totalPassengersMerkaz =
+          previousDetails.boardingStation === "רכבת מרכז" ||
+          previousDetails.alightingStation === "רכבת מרכז"
+            ? data.totals.merkaz - previousDetails.numPassengers
+            : data.totals.merkaz;
+        totalPassengersMahir =
+          previousDetails.boardingStation === "חניון שפירים" ||
+          previousDetails.alightingStation === "חניון שפירים"
+            ? data.totals.mahir - previousDetails.numPassengers
+            : data.totals.mahir;
+        totalPassengersLatrun =
+          previousDetails.boardingStation === "מחלף לטרון" ||
+          previousDetails.alightingStation === "מחלף לטרון"
+            ? data.totals.latrun - previousDetails.numPassengers
+            : data.totals.latrun;
+        totalMembers = data.totals.members - previousDetails.numMembers;
+        totalOneTime =
+          data.totals.oneTime -
+          (previousDetails.numPassengers - previousDetails.numMembers);
+      }
+      totalPassengersToGame =
         personalDetails.boardingStation === "אני נוסע/ת רק חזור"
-          ? data.totals.toGame
-          : data.totals.toGame + personalDetails.numPassengers;
-      const totalPassengersFromGame =
+          ? totalPassengersToGame
+          : totalPassengersToGame + personalDetails.numPassengers;
+      totalPassengersFromGame =
         personalDetails.alightingStation === "אני נוסע/ת רק הלוך"
-          ? data.totals.fromGame
-          : data.totals.fromGame + personalDetails.numPassengers;
-      const totalPassengersMerkaz =
+          ? totalPassengersFromGame
+          : totalPassengersFromGame + personalDetails.numPassengers;
+      totalPassengersMerkaz =
         personalDetails.boardingStation === "רכבת מרכז" ||
         personalDetails.alightingStation === "רכבת מרכז"
-          ? data.totals.merkaz + personalDetails.numPassengers
-          : data.totals.merkaz;
-      const totalPassengersMahir =
+          ? totalPassengersMerkaz + personalDetails.numPassengers
+          : totalPassengersMerkaz;
+      totalPassengersMahir =
         personalDetails.boardingStation === "חניון שפירים" ||
         personalDetails.alightingStation === "חניון שפירים"
-          ? data.totals.mahir + personalDetails.numPassengers
-          : data.totals.mahir;
-      const totalPassengersLatrun =
+          ? totalPassengersMahir + personalDetails.numPassengers
+          : totalPassengersMahir;
+      totalPassengersLatrun =
         personalDetails.boardingStation === "מחלף לטרון" ||
         personalDetails.alightingStation === "מחלף לטרון"
-          ? data.totals.latrun + personalDetails.numPassengers
-          : data.totals.latrun;
-      const totalMembers = data.totals.members + personalDetails.numMembers;
-      const totalOneTime =
-        data.totals.oneTime +
+          ? totalPassengersLatrun + personalDetails.numPassengers
+          : totalPassengersLatrun;
+      totalMembers = totalMembers + personalDetails.numMembers;
+      totalOneTime =
+        totalOneTime +
         (personalDetails.numPassengers - personalDetails.numMembers);
+
       if (
         totalPassengersToGame <= maxPassengers &&
         totalPassengersFromGame <= maxPassengers

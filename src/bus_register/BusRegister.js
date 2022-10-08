@@ -100,6 +100,9 @@ function BusRegister() {
   });
 
   const checkEmail = async (email) => {
+    if (user) {
+      return true;
+    }
     const busRef = doc(db, "Buses", state.busID);
     const docSnap = await getDoc(busRef);
     if (docSnap.exists()) {
@@ -131,6 +134,26 @@ function BusRegister() {
       return docSnap.data().preferences;
     }
     return null;
+  }
+
+  async function getPreviousDetails(email) {
+    const busRef = doc(db, "Buses", state.busID);
+    const docSnap = await getDoc(busRef);
+    if (docSnap.exists()) {
+      const registeredUsers = docSnap.data().registered_users;
+      if (registeredUsers[email.replaceAll(".", "@")] !== undefined) {
+        return registeredUsers[email.replaceAll(".", "@")];
+      }
+    }
+    return null;
+  }
+
+  async function getDetails(email) {
+    let details = await getPreviousDetails(email);
+    if (details === null) {
+      details = await getPreferences(email);
+    }
+    return details;
   }
 
   const calculatePrice = (
@@ -220,35 +243,32 @@ function BusRegister() {
           setNumMembers(num);
         }
       });
-      getPreferences(user.email).then((preferences) => {
-        formik.setValues({
-          alightingStation:
-            preferences.alightingStation !== undefined
-              ? preferences.alightingStation
-              : formik.values.alightingStation,
-          boardingStation:
-            preferences.boardingStation !== undefined
-              ? preferences.boardingStation
-              : formik.values.boardingStation,
-          sendMail:
-            preferences.sendMail !== undefined
-              ? preferences.sendMail
-              : formik.values.sendMail,
-          phone:
-            preferences.phone !== undefined
-              ? preferences.phone
-              : formik.values.phone,
-          numPassengers:
-            preferences.numPassengers !== undefined
-              ? preferences.numPassengers
-              : formik.values.numPassengers,
-          saveDetails: formik.values.saveDetails,
-          name:
-            preferences.name !== undefined
-              ? preferences.name
-              : user.displayName,
-          email: user.email,
-        });
+      getDetails(user.email).then((details) => {
+        if (details) {
+          formik.setValues({
+            alightingStation:
+              details.alightingStation !== undefined
+                ? details.alightingStation
+                : formik.values.alightingStation,
+            boardingStation:
+              details.boardingStation !== undefined
+                ? details.boardingStation
+                : formik.values.boardingStation,
+            sendMail:
+              details.sendMail !== undefined
+                ? details.sendMail
+                : formik.values.sendMail,
+            phone:
+              details.phone !== undefined ? details.phone : formik.values.phone,
+            numPassengers:
+              details.numPassengers !== undefined
+                ? details.numPassengers
+                : formik.values.numPassengers,
+            saveDetails: formik.values.saveDetails,
+            name: details.name !== undefined ? details.name : user.displayName,
+            email: user.email,
+          });
+        }
       });
     }
     if (formik.values.numPassengers === "") {
