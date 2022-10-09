@@ -12,6 +12,7 @@ import {
 import { db } from "../utils/firebase";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
 import dayjs from "dayjs";
+
 import eilatLogo from "../assets/logo_eilat.png";
 import beerShevaLogo from "../assets/logo_beer_sheva.png";
 import gilboaGalilLogo from "../assets/logo_gilboa_galil.png";
@@ -28,6 +29,8 @@ import darussafakaLogo from "../assets/logo_darussafaka.png";
 import bakkenLogo from "../assets/logo_bakken.png";
 import googleMaps from "../assets/google_maps.png";
 import waze from "../assets/waze.png";
+import facebook from "../assets/facebook.png";
+import whatsapp from "../assets/whatsapp.png";
 import { CircularProgress } from "@mui/material";
 
 function Home() {
@@ -252,6 +255,33 @@ function Home() {
           <button className="RegisterButton">הוספת הסעה</button>
         </Link>
       )}
+      <a
+        className="FacebookButton"
+        href={"https://chat.whatsapp.com/Jl6sAaAGbTE4MYUc6nCvgy"}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img src={whatsapp} alt={"facebook logo"} />
+        <div>לקבוצת הוואטסאפ</div>
+      </a>
+      <a
+        className="FacebookButton"
+        href={"https://www.facebook.com/groups/146607822184153"}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img src={facebook} alt={"facebook logo"} />
+        <div>לקבוצת הפייסבוק</div>
+      </a>
+      <a
+        className="FacebookButton"
+        href={"https://www.facebook.com/mehutz.la"}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img src={facebook} alt={"facebook logo"} />
+        <div>לדף הפייסבוק</div>
+      </a>
 
       <p className="ContentSubtitle">מסלול:</p>
       <div className="GameCard">

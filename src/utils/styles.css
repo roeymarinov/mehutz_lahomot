@@ -479,3 +479,39 @@
     margin: 5px 20px;
     text-align: center;
 }
+
+.FacebookButton {
+    align-self: center;
+    margin-top: 0;
+    border: 0;
+    background-color: #df1d22;
+    color: white;
+    border-radius: 15px;
+    font-size: 22px;
+    padding: 2vh;
+    display: flex;
+    align-items: center;
+    font-family: "Varela Round", serif;
+    cursor: pointer;
+    text-decoration: none;
+    margin-bottom: 10px;
+    min-width: 220px;
+}
+
+
+.FacebookButton:hover {
+    color: #e7e7e7;
+}
+
+.FacebookButton img {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+}
+
+.FacebookButton div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
