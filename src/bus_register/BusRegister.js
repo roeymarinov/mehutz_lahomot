@@ -25,18 +25,19 @@ import { AuthenticatedUserContext } from "../utils/UserProvider";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import googleMaps from "../assets/google_maps.png";
 import waze from "../assets/waze.png";
+import CancelDialog from "./CancelDialog";
 const LATRUN_PRICE = 15;
 const PRICE = 20;
 
 function BusRegister() {
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const { state } = useLocation();
   const { user } = useContext(AuthenticatedUserContext);
   const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
   const [numPassengersArray, setNumPassengersArray] = useState([0]);
   const [numMembers, setNumMembers] = useState(0);
   const [price, setPrice] = useState(0);
-  console.log(user);
   const validationSchema = yup.object({
     email: yup
       .string()
@@ -225,7 +226,6 @@ function BusRegister() {
     anchorElementPopover,
     setAnchorElementPopover
   ) => {
-    console.log("toggle");
     if (anchorElementPopover) {
       setAnchorElementPopover(null);
     } else {
@@ -322,6 +322,12 @@ function BusRegister() {
                 פייבוקס
               </a>
             </div>
+            <button
+              className="CancelRegistrationButton"
+              onClick={() => setCancelDialogOpen(true)}
+            >
+              ביטול רישום
+            </button>
           </div>
           <div className={"StationInfo"}>
             <p>יציאה מרכבת מרכז: {busTime.merkaz}</p>
@@ -406,6 +412,7 @@ function BusRegister() {
           </div>
         </div>
       </div>
+
       <form
         className="BusForm"
         dir="rtl"
@@ -691,6 +698,11 @@ function BusRegister() {
           sentMail: false,
           price: price,
         }}
+        busDetails={state}
+      />
+      <CancelDialog
+        cancelDialogOpen={cancelDialogOpen}
+        setCancelDialogOpen={setCancelDialogOpen}
         busDetails={state}
       />
     </div>

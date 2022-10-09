@@ -223,13 +223,6 @@ async function appendRows(spreadsheetId, range, valueInputOption, values) {
 }
 
 async function getValues(spreadsheetId, range, majorDimension) {
-  // const {GoogleAuth} = require('google-auth-library');
-  // const {google} = require('googleapis');
-
-  // const auth = new GoogleAuth({
-  //   scopes: 'https://www.googleapis.com/auth/spreadsheets',
-  // });
-
   const service = google.sheets({ version: "v4", auth });
   try {
     const result = await service.spreadsheets.values.get({
@@ -241,11 +234,60 @@ async function getValues(spreadsheetId, range, majorDimension) {
     console.log(`${numRows} rows retrieved.`);
     return result;
   } catch (err) {
-    // TODO (developer) - Handle exception
     throw err;
   }
 }
+async function getSheetId(spreadsheetId, range) {
+  const service = google.sheets({ version: "v4", auth });
+  const authClient = await authorize();
+  const request = {
+    // The spreadsheet to request.
+    spreadsheetId,
 
+    // The ranges to retrieve from the spreadsheet.
+    ranges: [range],
+
+    // True if grid data should be returned.
+    // This parameter is ignored if a field mask was set in the request.
+    includeGridData: false,
+    auth: authClient,
+  };
+
+  try {
+    const response = (await service.spreadsheets.get(request)).data;
+    console.log("sheetID here?");
+    console.log(response.sheets[0]);
+    return response.sheets[0].properties.sheetId;
+  } catch (err) {
+    console.error(err);
+  }
+}
+async function cutPaste(spreadsheetId, source, destination, pasteType) {
+  const client = await authorize();
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const requests = [];
+  requests.push({
+    cutPaste: {
+      source,
+      destination,
+      pasteType,
+    },
+  });
+
+  try {
+    return await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        includeSpreadsheetInResponse: false,
+        requests: requests,
+        responseIncludeGridData: false,
+        responseRanges: [],
+      },
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
+}
 async function updateUserDetails(email, newDetailsRow, title) {
   const response = await getValues(
     SPREADSHEET_ID,
@@ -272,6 +314,38 @@ async function updateUserDetails(email, newDetailsRow, title) {
       "'" + title + "'!A" + rowNum + ":K" + rowNum,
       "RAW",
       newDetailsRow
+    );
+  }
+}
+async function deleteUserDetails(email, title) {
+  const valuesResponse = await getValues(
+    SPREADSHEET_ID,
+    "'" + title + "'!B:B",
+    "COLUMNS"
+  );
+  const sheetId = await getSheetId(SPREADSHEET_ID, "'" + title + "'!B:B");
+  // console.log(valuesResponse);
+  const index = valuesResponse.data.values[0].indexOf(email);
+  if (index !== -1) {
+    const rowNum = index + 1;
+    console.log("cutPaste", sheetId);
+    console.log(valuesResponse.data.values[0].length + 3);
+    console.log(rowNum);
+    await cutPaste(
+      SPREADSHEET_ID,
+      {
+        sheetId,
+        startRowIndex: rowNum,
+        endRowIndex: valuesResponse.data.values[0].length + 3,
+        startColumnIndex: 0,
+        endColumnIndex: 11,
+      },
+      {
+        sheetId,
+        rowIndex: rowNum - 1,
+        columnIndex: 0,
+      },
+      "PASTE_NORMAL"
     );
   }
 }
@@ -346,9 +420,9 @@ exports.registerUser = functions.firestore
       "/" +
       (parseInt(data.date.toDate().getMonth()) + 1).toString();
     const newUsers = {};
-    const keys = Object.keys(registeredUsersBefore);
+    const beforeKeys = Object.keys(registeredUsersBefore);
     for (const key in registeredUsersAfter) {
-      if (!keys.includes(key)) {
+      if (!beforeKeys.includes(key)) {
         newUsers[key] = registeredUsersAfter[key];
         console.log("new registration");
       } else if (
@@ -362,6 +436,16 @@ exports.registerUser = functions.firestore
         newUsers[key] = registeredUsersAfter[key];
       }
     }
+    const afterKeys = Object.keys(registeredUsersAfter);
+    const deletedUsers = {};
+    for (const key in registeredUsersBefore) {
+      if (!afterKeys.includes(key)) {
+        deletedUsers[key] = registeredUsersBefore[key];
+        console.log("delete registration");
+      }
+    }
+    console.log("deleted users:");
+    console.log(deletedUsers);
     // const newUsers =
     //   registeredUsersBefore.length < registeredUsersAfter.length
     //     ? registeredUsersAfter.filter((x) => !registeredUsersBefore.includes(x))
@@ -453,6 +537,12 @@ exports.registerUser = functions.firestore
                   });
               }
             });
+        });
+      })
+      .then(() => {
+        Object.entries(deletedUsers).forEach(([, userDetails]) => {
+          const email = userDetails.email;
+          deleteUserDetails(email, title).catch(console.error);
         });
       })
       .then(() =>

@@ -178,6 +178,18 @@
     display: flex;
     flex-direction: column;
 }
+.CancelForm{
+    display: flex;
+    flex-direction: column;
+    margin: 5px 20px;
+}
+.CancelForm p{
+    max-width: 300px;
+    line-height: 1.5em;
+    margin-bottom: 5px;
+    text-align: right;
+    margin-right: 0;
+}
 .MuiDialog-root {
     font-family: "Varela Round", serif;
     cursor: default;
@@ -202,6 +214,7 @@
     width: 80%;
     align-items: flex-start;
 }
+
 .MuiFormHelperText-root{
     align-self: flex-start;
 }
@@ -355,6 +368,8 @@
 .ConfirmCancel {
     display: flex;
     flex-direction: row;
+    column-gap: 15px;
+    align-self: center;
 }
 
 .LoadingDialog {
@@ -439,4 +454,28 @@
 
 .CheckboxInfoIcon {
     margin-right: 15px;
+}
+
+.CancelRegistrationButton {
+    align-self: flex-start;
+    /*margin: 3vh 1vw;*/
+    /*margin-right: 7vw;*/
+    /*margin-top: 15px;*/
+    border: 0;
+    background-color: #df1d22;
+    color: white;
+    border-radius: 10px;
+    font-size: 18px;
+    padding: 1vh;
+    font-family: "Varela Round", serif;
+    cursor: pointer;
+}
+
+.CancelRegistrationButton:hover {
+    color: #e7e7e7;
+}
+
+.CancelInfoText {
+    margin: 5px 20px;
+    text-align: center;
 }
