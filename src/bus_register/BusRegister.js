@@ -34,7 +34,7 @@ function BusRegister() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const { state } = useLocation();
   const { user } = useContext(AuthenticatedUserContext);
-  const { busTime, gameTime, gameDate, opponentName } = state; // Read values passed on state
+  const { busTime, gameTime, gameDate, opponentName, isUserRegistered } = state; // Read values passed on state
   const [numPassengersArray, setNumPassengersArray] = useState([0]);
   const [numMembers, setNumMembers] = useState(0);
   const [price, setPrice] = useState(0);
@@ -322,12 +322,14 @@ function BusRegister() {
                 פייבוקס
               </a>
             </div>
-            <button
-              className="CancelRegistrationButton"
-              onClick={() => setCancelDialogOpen(true)}
-            >
-              ביטול רישום
-            </button>
+            {(!user || isUserRegistered) && (
+              <button
+                className="CancelRegistrationButton"
+                onClick={() => setCancelDialogOpen(true)}
+              >
+                ביטול רישום
+              </button>
+            )}
           </div>
           <div className={"StationInfo"}>
             <p>יציאה מרכבת מרכז: {busTime.merkaz}</p>
