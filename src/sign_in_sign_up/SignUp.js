@@ -126,6 +126,10 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
   return (
     <Dialog open={signUpDialogOpen} onClose={closeSignUp}>
       <p className="DialogTitle">הרשמה לאתר</p>
+      <b className={"SignUpInfoTitle"}>שימו לב!</b>
+      <p className={"SignUpInfo"}>
+        אם ברשותכם מנוי הסעות, אנא הירשמו עם אותו מייל שהוזן בהרשמה למנוי ההסעות
+      </p>
       <form className={"SignInForm"} onSubmit={formik.handleSubmit}>
         <TextField
           id="email"

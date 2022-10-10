@@ -176,7 +176,10 @@
 }
 .SignInForm{
     display: flex;
+    align-self: center;
+    justify-content: center;
     flex-direction: column;
+    max-width: 220px;
 }
 .CancelForm{
     display: flex;
@@ -211,7 +214,7 @@
 
 .MuiTextField-root {
     align-self: center;
-    width: 80%;
+    width: 100%;
     align-items: flex-start;
 }
 
@@ -514,4 +517,20 @@
     flex-direction: row;
     justify-content: center;
     width: 100%;
+}
+
+.SignUpInfo {
+    display: flex;
+    align-self: center;
+    max-width: 300px;
+    margin-right: 5vw;
+    margin-top: 0;
+    line-height: 1.5em;
+}
+
+.SignUpInfoTitle {
+    display: flex;
+    max-width: 300px;
+    margin-right: 3vw;
+    margin-top: 0;
 }
