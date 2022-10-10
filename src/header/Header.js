@@ -10,10 +10,14 @@ import { getAuth, signOut } from "firebase/auth";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-function Header() {
+function Header({
+  signInDialogOpen,
+  setSignInDialogOpen,
+  signUpDialogOpen,
+  setSignUpDialogOpen,
+}) {
   const auth = getAuth();
-  const [signInDialogOpen, setSignInDialogOpen] = useState(false);
-  const [signUpDialogOpen, setSignUpDialogOpen] = useState(false);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const profileMenuOpen = Boolean(anchorEl);
   const nav = useNavigate();

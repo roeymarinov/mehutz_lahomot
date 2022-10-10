@@ -33,7 +33,12 @@ import facebook from "../assets/facebook.png";
 import whatsapp from "../assets/whatsapp.png";
 import { CircularProgress } from "@mui/material";
 
-function Home() {
+function Home({
+  signInDialogOpen,
+  setSignInDialogOpen,
+  signUpDialogOpen,
+  setSignUpDialogOpen,
+}) {
   // const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
   const { user } = useContext(AuthenticatedUserContext);
   const [buses, setBuses] = useState([]);
@@ -195,7 +200,11 @@ function Home() {
             className="RegisterButton"
             disabled={buses[0].isBusFull}
             onClick={() => {
-              navigate("/bus", { state: buses[0] });
+              if (user) {
+                navigate("/bus", { state: buses[0] });
+              } else {
+                setSignInDialogOpen(true);
+              }
             }}
           >
             {" "}
@@ -236,7 +245,11 @@ function Home() {
                 className="RegisterButton"
                 disabled={buses[index].isBusFull}
                 onClick={() => {
-                  navigate("/bus", { state: buses[index] });
+                  if (user) {
+                    navigate("/bus", { state: buses[0] });
+                  } else {
+                    setSignInDialogOpen(true);
+                  }
                 }}
               >
                 {" "}

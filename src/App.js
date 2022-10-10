@@ -7,6 +7,7 @@ import BusRegister from "./bus_register/BusRegister";
 import AddBus from "./add_bus/AddBus";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { useState } from "react";
 
 const theme = createTheme({
   typography: {
@@ -30,6 +31,8 @@ const theme = createTheme({
 });
 
 function App() {
+  const [signInDialogOpen, setSignInDialogOpen] = useState(false);
+  const [signUpDialogOpen, setSignUpDialogOpen] = useState(false);
   return (
     <LocalizationProvider
       //adapterLocale="he"
@@ -39,9 +42,24 @@ function App() {
       <Router>
         <ThemeProvider theme={theme}>
           <AuthenticatedUserProvider>
-            <Header />
+            <Header
+              signInDialogOpen={signInDialogOpen}
+              setSignInDialogOpen={setSignInDialogOpen}
+              signUpDialogOpen={signUpDialogOpen}
+              setSignUpDialogOpen={setSignUpDialogOpen}
+            />
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route
+                path="/"
+                element={
+                  <Home
+                    signInDialogOpen={signInDialogOpen}
+                    setSignInDialogOpen={setSignInDialogOpen}
+                    signUpDialogOpen={signUpDialogOpen}
+                    setSignUpDialogOpen={setSignUpDialogOpen}
+                  />
+                }
+              />
               <Route path="bus" element={<BusRegister />} />
               <Route path="add_bus" element={<AddBus />} />
             </Routes>
