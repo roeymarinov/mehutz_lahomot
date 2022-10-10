@@ -305,10 +305,10 @@
 .NumPassengers{
     display: flex;
     flex-direction: column;
-    width: 80%;
-    align-self: center;
+    width: 100%;
     margin-top: 2vh;
     margin-bottom: 0.3vh;
+    max-width: 220px;
 }
 
 .ChooseOpponent{
