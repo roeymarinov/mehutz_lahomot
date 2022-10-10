@@ -538,3 +538,13 @@
 .TicketsLink {
     color: blue;
 }
+
+.NotSignedDialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.NotSignedDialog p {
+    margin-top: 20px;
+}

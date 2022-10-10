@@ -31,7 +31,7 @@ import googleMaps from "../assets/google_maps.png";
 import waze from "../assets/waze.png";
 import facebook from "../assets/facebook.png";
 import whatsapp from "../assets/whatsapp.png";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Dialog } from "@mui/material";
 
 function Home({
   signInDialogOpen,
@@ -40,6 +40,7 @@ function Home({
   setSignUpDialogOpen,
 }) {
   // const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
+  const [notSignedDialogOpen, setNotSignedDialogOpen] = useState(false);
   const { user } = useContext(AuthenticatedUserContext);
   const [buses, setBuses] = useState([]);
   const navigate = useNavigate();
@@ -211,7 +212,7 @@ function Home({
               if (user) {
                 navigate("/bus", { state: buses[0] });
               } else {
-                setSignInDialogOpen(true);
+                setNotSignedDialogOpen(true);
               }
             }}
           >
@@ -264,7 +265,7 @@ function Home({
                   if (user) {
                     navigate("/bus", { state: buses[0] });
                   } else {
-                    setSignInDialogOpen(true);
+                    setNotSignedDialogOpen(true);
                   }
                 }}
               >
@@ -414,6 +415,25 @@ function Home({
           <li>מנוי שנתי - ₪330</li>
         </ul>
       </div>
+      <Dialog
+        open={notSignedDialogOpen}
+        onClose={() => setNotSignedDialogOpen(false)}
+      >
+        <div className={"NotSignedDialog"}>
+          <p className={"SignUpInfo"}>
+            על מנת להירשם להסעה, צריך להיות מחוברים לאתר קודם
+          </p>
+          <button
+            className="RegisterButton"
+            onClick={() => {
+              setNotSignedDialogOpen(false);
+              setSignInDialogOpen(true);
+            }}
+          >
+            להתחברות
+          </button>
+        </div>
+      </Dialog>
     </div>
   );
 }
