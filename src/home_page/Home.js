@@ -194,6 +194,14 @@ function Home({
               <p>משחק: {buses[0].gameTime}</p>
               <p>הסעה: {buses[0].busTime.merkaz}</p>
               <p>פיס ארנה</p>
+              <a
+                href={"https://tickets.hapoel.co.il/"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={"TicketsLink"}
+              >
+                כרטיסים למשחק
+              </a>
             </div>
           </div>
           <button
@@ -239,6 +247,14 @@ function Home({
                   <p>משחק: {buses[index].gameTime}</p>
                   <p>הסעה: {buses[index].busTime.merkaz}</p>
                   <p>פיס ארנה</p>
+                  <a
+                    href={"https://tickets.hapoel.co.il/"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={"TicketsLink"}
+                  >
+                    כרטיסים למשחק
+                  </a>
                 </div>
               </div>
               <button
