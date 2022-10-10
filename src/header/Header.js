@@ -1,7 +1,9 @@
 import "../utils/styles.css";
 import logo from "../assets/mehutz_lahomot_logo.png";
-import SignInSignUp from "../sign_in_sign_up/SignIn";
+import SignIn from "../sign_in_sign_up/SignIn";
 import SignUp from "../sign_in_sign_up/SignUp";
+import ResetPassword from "../sign_in_sign_up/ResetPassword";
+
 import { useContext, useState } from "react";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
@@ -15,6 +17,8 @@ function Header({
   setSignInDialogOpen,
   signUpDialogOpen,
   setSignUpDialogOpen,
+  resetPasswordDialogOpen,
+  setResetPasswordDialogOpen,
 }) {
   const auth = getAuth();
 
@@ -44,6 +48,7 @@ function Header({
   const { user } = useContext(AuthenticatedUserContext);
 
   const goToSignInDialog = () => {
+    setResetPasswordDialogOpen(false);
     setSignUpDialogOpen(false);
     setSignInDialogOpen(true);
   };
@@ -51,6 +56,12 @@ function Header({
     setSignInDialogOpen(false);
     setSignUpDialogOpen(true);
   };
+
+  const goToResetPasswordDialog = () => {
+    setSignInDialogOpen(false);
+    setResetPasswordDialogOpen(true);
+  };
+
   return (
     <div className="Header">
       <div className="MainHeader">
@@ -82,14 +93,20 @@ function Header({
       <p className="Subtitle">
         הסעות מתל אביב למשחקי הבית של הפועל ירושלים בארנה
       </p>
-      <SignInSignUp
+      <SignIn
         signInDialogOpen={signInDialogOpen}
         setSignInDialogOpen={setSignInDialogOpen}
         goToSignUpDialog={goToSignUpDialog}
+        goToResetPasswordDialog={goToResetPasswordDialog}
       />
       <SignUp
         signUpDialogOpen={signUpDialogOpen}
         setSignUpDialogOpen={setSignUpDialogOpen}
+        goToSignInDialog={goToSignInDialog}
+      />
+      <ResetPassword
+        resetPasswordDialogOpen={resetPasswordDialogOpen}
+        setResetPasswordDialogOpen={setResetPasswordDialogOpen}
         goToSignInDialog={goToSignInDialog}
       />
       <Menu

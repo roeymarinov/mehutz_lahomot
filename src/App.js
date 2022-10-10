@@ -33,6 +33,7 @@ const theme = createTheme({
 function App() {
   const [signInDialogOpen, setSignInDialogOpen] = useState(false);
   const [signUpDialogOpen, setSignUpDialogOpen] = useState(false);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   return (
     <LocalizationProvider
       //adapterLocale="he"
@@ -47,6 +48,8 @@ function App() {
               setSignInDialogOpen={setSignInDialogOpen}
               signUpDialogOpen={signUpDialogOpen}
               setSignUpDialogOpen={setSignUpDialogOpen}
+              resetPasswordDialogOpen={resetPasswordDialogOpen}
+              setResetPasswordDialogOpen={setResetPasswordDialogOpen}
             />
             <Routes>
               <Route

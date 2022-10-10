@@ -59,6 +59,7 @@ function CancelDialog({ cancelDialogOpen, setCancelDialogOpen, busDetails }) {
       setCancelDialogOpen(false);
       setConfirmedCancel(false);
     }
+    formik.handleReset(undefined);
   };
   const cancelRegistrationToBus = async (email) => {
     setConfirmedCancel(true);
@@ -132,6 +133,10 @@ function CancelDialog({ cancelDialogOpen, setCancelDialogOpen, busDetails }) {
     }
     setLoading(false);
   }, [user]);
+
+  useEffect(() => {
+    formik.handleReset(undefined);
+  }, [cancelDialogOpen]);
 
   return (
     <Dialog open={cancelDialogOpen} onClose={closeSubmit}>

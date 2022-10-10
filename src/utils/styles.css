@@ -209,7 +209,10 @@
     display: flex;
     flex-direction: row;
     align-self: center;
-    margin: 10px 20px;
+    margin: 0 20px;
+}
+.NoUserText p{
+    margin: 10px 0;
 }
 
 .MuiTextField-root {

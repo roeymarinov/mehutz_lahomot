@@ -83,6 +83,7 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
   });
   const closeSignUp = () => {
     setSignUpDialogOpen(false);
+    formik.handleReset(undefined);
   };
 
   useEffect(() => {
@@ -99,7 +100,9 @@ function SignUp({ signUpDialogOpen, setSignUpDialogOpen, goToSignInDialog }) {
       document.removeEventListener("keydown", keyDownHandler);
     };
   });
-
+  useEffect(() => {
+    formik.handleReset(undefined);
+  }, [signUpDialogOpen]);
   // Handle user state changes
   async function onAuthStateChanged(authenticatedUser) {
     if (authenticatedUser && !user) {

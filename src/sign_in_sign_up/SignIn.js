@@ -9,7 +9,12 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const auth = getAuth(app);
 
-function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
+function SignIn({
+  signInDialogOpen,
+  setSignInDialogOpen,
+  goToSignUpDialog,
+  goToResetPasswordDialog,
+}) {
   const [showPassword, setShowPassword] = useState(false);
   const validationSchema = yup.object({
     email: yup
@@ -39,8 +44,9 @@ function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
     },
   });
 
-  const closeSignIn = () => {
+  const closeSignIn = async () => {
     setSignInDialogOpen(false);
+    formik.handleReset(undefined);
   };
 
   useEffect(() => {
@@ -57,6 +63,10 @@ function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
       document.removeEventListener("keydown", keyDownHandler);
     };
   });
+
+  useEffect(() => {
+    formik.handleReset(undefined);
+  }, [signInDialogOpen]);
 
   return (
     <Dialog open={signInDialogOpen} onClose={closeSignIn}>
@@ -105,6 +115,12 @@ function SignIn({ signInDialogOpen, setSignInDialogOpen, goToSignUpDialog }) {
         <p>עדיין אין לכם משתמש?&nbsp; </p>
         <p className="RegisterText" onClick={goToSignUpDialog}>
           הירשמו
+        </p>
+      </div>
+      <div className="NoUserText">
+        <p>שכחתם סיסמה?&nbsp; </p>
+        <p className="RegisterText" onClick={goToResetPasswordDialog}>
+          לאיפוס סיסמה
         </p>
       </div>
     </Dialog>
