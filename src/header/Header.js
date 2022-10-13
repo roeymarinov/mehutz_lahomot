@@ -118,7 +118,11 @@ function Header({
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={closeProfileMenu}>הגדרות (בקרוב!)</MenuItem>
+        <MenuItem onClick={closeProfileMenu}>
+          <Link to={"/settings"} className={"SettingsLink"}>
+            הגדרות
+          </Link>
+        </MenuItem>
         <MenuItem onClick={signOutUser}>התנתקות</MenuItem>
       </Menu>
     </div>

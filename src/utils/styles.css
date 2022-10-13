@@ -551,3 +551,17 @@
 .NotSignedDialog p {
     margin-top: 20px;
 }
+
+.Settings {
+    font-family: "Varela Round", serif;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    align-items: flex-start;
+    direction: rtl;
+}
+
+.SettingsLink {
+    color: black;
+    text-decoration: none;
+}

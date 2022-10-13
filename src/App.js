@@ -8,6 +8,7 @@ import AddBus from "./add_bus/AddBus";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useState } from "react";
+import Settings from "./settings/Settings";
 
 const theme = createTheme({
   typography: {
@@ -64,6 +65,7 @@ function App() {
                 }
               />
               <Route path="bus" element={<BusRegister />} />
+              <Route path="settings" element={<Settings />} />
               <Route path="add_bus" element={<AddBus />} />
             </Routes>
           </AuthenticatedUserProvider>
