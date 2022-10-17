@@ -68,7 +68,6 @@ function Home({
   const nowDate = Timestamp.now().toDate();
   nowDate.setHours(0, 0, 0, 0);
   const nowStamp = Timestamp.fromDate(nowDate);
-  console.log(nowStamp.toDate());
   const q = query(BusesRef, where("date", ">", nowStamp), orderBy("date"));
   useEffect(() => {
     if (user) {

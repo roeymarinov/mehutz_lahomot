@@ -23,16 +23,20 @@ import { useFormik, yupToFormErrors } from "formik";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { Edit } from "@mui/icons-material";
+import { getAuth, updateProfile } from "firebase/auth";
+
 const LATRUN_PRICE = 15;
 const PRICE = 20;
 
 function Settings() {
+  const auth = getAuth();
   const { user } = useContext(AuthenticatedUserContext);
   const numPassengersArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   const [numMembers, setNumMembers] = useState(0);
   const [phoneDisabled, setPhoneDisabled] = useState(true);
   const [nameDisabled, setNameDisabled] = useState(true);
   const [usernameDisabled, setUsernameDisabled] = useState(true);
+  const [calledBlur, setCalledBlur] = useState(false);
 
   const validationSchema = yup.object({
     name: yup
@@ -64,44 +68,41 @@ function Settings() {
       sendMail: true,
       saveDetails: false,
     },
-    validate: async (values) => {
-      const errors = {};
-      if (
-        values.boardingStation === "אני נוסע/ת רק חזור" &&
-        values.alightingStation === "אני נוסע/ת רק הלוך"
-      ) {
-        errors.alightingStation =
-          "אם אתם לא נוסעים באף אחד מהכיוונים, למה להירשם? (;";
-      }
-      try {
-        await validationSchema.validate(values, { abortEarly: false });
-      } catch (e) {
-        return {
-          ...yupToFormErrors(e),
-          ...errors,
-        };
-      }
-      return errors;
-    },
+
     onSubmit: async (values, { setSubmitting }) => {
+      await setPreferences(user.email);
+      await setUsername(user.email, values.username);
       setSubmitting(false);
     },
   });
 
   async function setPreferences(email) {
     const userRef = doc(db, "Users", email);
-
     await updateDoc(userRef, {
       preferences: {
         name: formik.values.name,
         alightingStation: formik.values.alightingStation,
         boardingStation: formik.values.boardingStation,
         numPassengers: formik.values.numPassengers,
-        email: formik.values.email,
         phone: formik.values.phone,
         sendMail: formik.values.sendMail,
       },
     });
+  }
+  async function setUsername(email, username) {
+    updateProfile(auth.currentUser, {
+      displayName: username,
+    })
+      .then(() => {
+        const userRef = doc(db, "Users", email);
+        updateDoc(userRef, {
+          username,
+        });
+      })
+      .catch((error) => {
+        // An error occurred
+        // ...
+      });
   }
 
   async function getPreferences(email) {
@@ -119,6 +120,15 @@ function Settings() {
     if (docSnap.exists()) {
       return docSnap.data().numMembers;
     } else return 0;
+  };
+
+  const getUsername = async (email) => {
+    const userRef = doc(db, "Users", email);
+    const docSnap = await getDoc(userRef);
+    if (docSnap.exists()) {
+      return docSnap.data().username;
+    }
+    return null;
   };
 
   const [anchorPhonePopover, setAnchorPhonePopover] = useState(null);
@@ -153,31 +163,37 @@ function Settings() {
         }
       });
       getPreferences(user.email).then((details) => {
-        if (details) {
-          formik.setValues({
-            alightingStation:
-              details.alightingStation !== undefined
-                ? details.alightingStation
-                : formik.values.alightingStation,
-            boardingStation:
-              details.boardingStation !== undefined
-                ? details.boardingStation
-                : formik.values.boardingStation,
-            sendMail:
-              details.sendMail !== undefined
-                ? details.sendMail
-                : formik.values.sendMail,
-            phone:
-              details.phone !== undefined ? details.phone : formik.values.phone,
-            numPassengers:
-              details.numPassengers !== undefined
-                ? details.numPassengers
-                : formik.values.numPassengers,
-            saveDetails: formik.values.saveDetails,
-            name: details.name !== undefined ? details.name : user.displayName,
-            email: user.email,
-          });
-        }
+        getUsername(user.email).then((username) => {
+          if (details) {
+            formik.setValues({
+              alightingStation:
+                details.alightingStation !== undefined
+                  ? details.alightingStation
+                  : formik.values.alightingStation,
+              boardingStation:
+                details.boardingStation !== undefined
+                  ? details.boardingStation
+                  : formik.values.boardingStation,
+              sendMail:
+                details.sendMail !== undefined
+                  ? details.sendMail
+                  : formik.values.sendMail,
+              phone:
+                details.phone !== undefined
+                  ? details.phone
+                  : formik.values.phone,
+              numPassengers:
+                details.numPassengers !== undefined
+                  ? details.numPassengers
+                  : formik.values.numPassengers,
+              saveDetails: formik.values.saveDetails,
+              name:
+                details.name !== undefined ? details.name : user.displayName,
+              email: user.email,
+              username: username !== undefined ? username : "",
+            });
+          }
+        });
       });
     }
   }, [numMembers, user]);
@@ -187,7 +203,7 @@ function Settings() {
       <div className="FormTitle">
         <p>הגדרות</p>
       </div>
-      <div className="FormTitle">
+      <div className="FormSubtitle">
         <p>פרטי משתמש</p>
       </div>
       <form
@@ -196,190 +212,159 @@ function Settings() {
         lang="he"
         onSubmit={formik.handleSubmit}
       >
-        <FormLabel id="demo-radio-buttons-group-label">מייל </FormLabel>
-
-        <TextField
-          variant={"standard"}
-          id="email"
-          name="email"
-          margin="dense"
-          autoComplete="off"
-          disabled={true}
-          value={formik.values.email}
-        />
-        <FormLabel id="demo-radio-buttons-group-label">מס' מנויים </FormLabel>
-
-        <TextField
-          variant={"standard"}
-          id="numMembers"
-          name="numMembers"
-          margin="dense"
-          autoComplete="off"
-          disabled={true}
-          value={numMembers}
-        />
-
-        <FormLabel id="demo-radio-buttons-group-label">שם משתמש </FormLabel>
-        <TextField
-          variant={"standard"}
-          id="username"
-          name="username"
-          margin="dense"
-          autoComplete="off"
-          disabled={usernameDisabled}
-          value={formik.values.username}
-          error={formik.touched.username && Boolean(formik.errors.username)}
-          onChange={formik.handleChange}
-          onBlur={() => {
-            setNameDisabled(true);
-          }}
-          helperText={formik.touched.username && formik.errors.username}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => {
-                    setUsernameDisabled(!usernameDisabled);
-                  }}
-                  edge="end"
-                >
-                  <Edit />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <div className="FormTitle">
-          <p>העדפות לטופס הרשמה</p>
-        </div>
         <FormControl>
-          <FormLabel id="demo-radio-buttons-group-label">
-            תחנת עלייה (בהלוך)
-          </FormLabel>
-          <RadioGroup
-            id={"boardingStation"}
-            name={"boardingStation"}
-            aria-labelledby="demo-radio-buttons-group-label"
-            className="ChooseStation"
-            value={formik.values.boardingStation}
-            onChange={formik.handleChange}
-          >
-            <FormControlLabel
-              value="רכבת מרכז"
-              control={<Radio />}
-              label={`רכבת מרכז (₪${PRICE})`}
-            />
-            <FormControlLabel
-              value="חניון שפירים"
-              control={<Radio />}
-              label={`חניון שפירים - הנתיב המהיר (₪${PRICE})`}
-            />
-            <FormControlLabel
-              value="מחלף לטרון"
-              control={<Radio />}
-              label={`מחלף לטרון (₪${LATRUN_PRICE})`}
-            />
-            <FormControlLabel
-              value="אני נוסע/ת רק חזור"
-              control={<Radio />}
-              label="אני נוסע/ת רק חזור"
-            />
-          </RadioGroup>
-          <FormLabel id="alighting-station-radio-buttons-group">
-            תחנת ירידה (בחזור)
-          </FormLabel>
-          <RadioGroup
-            id={"alightingStation"}
-            name={"alightingStation"}
-            aria-labelledby="alighting-station-radio-buttons-group"
-            className="ChooseStation"
-            value={formik.values.alightingStation}
-            onChange={formik.handleChange}
-          >
-            <FormControlLabel
-              value="רכבת מרכז"
-              control={<Radio />}
-              label={`רכבת מרכז (₪${PRICE})`}
-            />
-            <FormControlLabel
-              value="חניון שפירים"
-              control={<Radio />}
-              label={`חניון שפירים - הנתיב המהיר (₪${PRICE})`}
-            />
-            <FormControlLabel
-              value="מחלף לטרון"
-              control={<Radio />}
-              label={`מחלף לטרון (₪${LATRUN_PRICE})`}
-            />
-            <FormControlLabel
-              value="אני נוסע/ת רק הלוך"
-              control={<Radio />}
-              label="אני נוסע/ת רק הלוך"
-            />
-          </RadioGroup>
-
-          <FormLabel id="demo-radio-buttons-group-label">מס' נוסעים</FormLabel>
-          <div className="NumPassengers">
-            <Select
-              id="numPassengers"
-              name={"numPassengers"}
-              value={formik.values.numPassengers}
-              label=""
+          <FormLabel id="demo-radio-buttons-group-label">מייל </FormLabel>
+          <div className={"SettingsField"}>
+            <TextField
               variant={"standard"}
-              displayEmpty
-              error={
-                formik.touched.numPassengers &&
-                Boolean(formik.errors.numPassengers)
-              }
+              id="email"
+              name="email"
+              margin="dense"
+              autoComplete="off"
+              disabled={true}
+              value={formik.values.email}
+            />
+          </div>
+          <FormLabel id="demo-radio-buttons-group-label">מס' מנויים </FormLabel>
+          <div className={"SettingsField"}>
+            <TextField
+              variant={"standard"}
+              id="numMembers"
+              name="numMembers"
+              margin="dense"
+              autoComplete="off"
+              disabled={true}
+              value={numMembers}
+            />
+          </div>
+
+          <FormLabel id="demo-radio-buttons-group-label">שם משתמש </FormLabel>
+          <div className={"SettingsField"}>
+            <TextField
+              variant={"standard"}
+              id="username"
+              name="username"
+              margin="dense"
+              autoComplete="off"
+              disabled={usernameDisabled}
+              value={formik.values.username}
+              error={formik.touched.username && Boolean(formik.errors.username)}
               onChange={formik.handleChange}
-            >
-              <MenuItem value={""}>מס' נוסעים</MenuItem>
-              {numPassengersArray.map((val) => {
-                return (
-                  <MenuItem value={val} key={val}>
-                    {val}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-            {formik.touched.numPassengers &&
-              Boolean(formik.errors.numPassengers) && (
-                <FormHelperText error={true}>
-                  {formik.touched.numPassengers && formik.errors.numPassengers}
-                </FormHelperText>
-              )}
+              onBlur={(e) => {
+                setCalledBlur(true);
+                formik.handleBlur(e);
+                setUsernameDisabled(true);
+                formik.handleSubmit();
+              }}
+              helperText={formik.touched.username && formik.errors.username}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        if (!calledBlur) {
+                          setUsernameDisabled(!usernameDisabled);
+                        } else {
+                          setCalledBlur(false);
+                        }
+                      }}
+                      edge="end"
+                    >
+                      <Edit />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </div>
+        </FormControl>
+      </form>
+      <div className="FormSubtitle">
+        <p>העדפות לטופס הרשמה</p>
+      </div>
+      <form
+        className="SettingsForm"
+        dir="rtl"
+        lang="he"
+        onSubmit={formik.handleSubmit}
+      >
+        <FormControl>
+          <FormLabel id="demo-radio-buttons-group-label">מס' נוסעים</FormLabel>
+          <div className={"SettingsField"}>
+            <div className="NumPassengers">
+              <Select
+                id="numPassengers"
+                name={"numPassengers"}
+                value={formik.values.numPassengers}
+                label=""
+                variant={"standard"}
+                displayEmpty
+                error={
+                  formik.touched.numPassengers &&
+                  Boolean(formik.errors.numPassengers)
+                }
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  formik.handleSubmit();
+                }}
+              >
+                <MenuItem value={""}>מס' נוסעים</MenuItem>
+                {numPassengersArray.map((val) => {
+                  return (
+                    <MenuItem value={val} key={val}>
+                      {val}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+              {formik.touched.numPassengers &&
+                Boolean(formik.errors.numPassengers) && (
+                  <FormHelperText error={true}>
+                    {formik.touched.numPassengers &&
+                      formik.errors.numPassengers}
+                  </FormHelperText>
+                )}
+            </div>
           </div>
           <FormLabel id="demo-radio-buttons-group-label">שם מלא </FormLabel>
-          <TextField
-            variant={"standard"}
-            id="name"
-            name="name"
-            margin="dense"
-            autoComplete="off"
-            disabled={nameDisabled}
-            value={formik.values.name}
-            error={formik.touched.name && Boolean(formik.errors.name)}
-            onChange={formik.handleChange}
-            onBlur={() => {
-              setNameDisabled(true);
-            }}
-            helperText={formik.touched.name && formik.errors.name}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => {
-                      setNameDisabled(!nameDisabled);
-                    }}
-                    edge="end"
-                  >
-                    <Edit />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+          <div className={"SettingsField"}>
+            <TextField
+              variant={"standard"}
+              id="name"
+              name="name"
+              margin="dense"
+              autoComplete="off"
+              disabled={nameDisabled}
+              value={formik.values.name}
+              error={formik.touched.name && Boolean(formik.errors.name)}
+              onChange={formik.handleChange}
+              onBlur={(e) => {
+                setCalledBlur(true);
+                formik.handleBlur(e);
+                setNameDisabled(true);
+                formik.handleSubmit();
+              }}
+              helperText={formik.touched.name && formik.errors.name}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        if (!calledBlur) {
+                          setNameDisabled(!nameDisabled);
+                        } else {
+                          setCalledBlur(false);
+                        }
+                      }}
+                      edge="end"
+                    >
+                      <Edit />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </div>
 
           <FormLabel className={"PhoneLabel"}>
             טלפון נייד{" "}
@@ -421,57 +406,133 @@ function Settings() {
               }
             />
           </FormLabel>
-          <TextField
-            variant={"standard"}
-            id="phone"
-            name="phone"
-            placeholder="טלפון נייד"
-            margin="dense"
-            autoComplete="off"
-            disabled={phoneDisabled}
-            value={formik.values.phone}
-            error={formik.touched.phone && Boolean(formik.errors.phone)}
-            onChange={formik.handleChange}
-            onBlur={() => {
-              setPhoneDisabled(true);
-            }}
-            helperText={formik.touched.phone && formik.errors.phone}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => {
-                      setPhoneDisabled(!phoneDisabled);
-                    }}
-                    edge="end"
-                  >
-                    <Edit />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </FormControl>
-
-        {formik.touched.alightingStation &&
-          Boolean(formik.errors.alightingStation) && (
-            <FormHelperText error={true}>
-              {formik.touched.alightingStation &&
-                formik.errors.alightingStation}
-            </FormHelperText>
-          )}
-        <FormControlLabel
-          control={
-            <Checkbox
-              defaultChecked
-              id={"sendMail"}
-              name={"sendMail"}
-              value={formik.values.sendMail}
+          <div className={"SettingsField"}>
+            <TextField
+              variant={"standard"}
+              id="phone"
+              name="phone"
+              placeholder="טלפון נייד"
+              margin="dense"
+              autoComplete="off"
+              disabled={phoneDisabled}
+              value={formik.values.phone}
+              error={formik.touched.phone && Boolean(formik.errors.phone)}
               onChange={formik.handleChange}
+              onBlur={(e) => {
+                setCalledBlur(true);
+                formik.handleBlur(e);
+                setPhoneDisabled(true);
+                formik.handleSubmit();
+              }}
+              helperText={formik.touched.phone && formik.errors.phone}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        if (!calledBlur) {
+                          setPhoneDisabled(!phoneDisabled);
+                        } else {
+                          setCalledBlur(false);
+                        }
+                      }}
+                      edge="end"
+                    >
+                      <Edit />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
-          }
-          label="שליחת מייל אישור עם פרטי ההסעה"
-        />
+          </div>
+          <FormLabel id="demo-radio-buttons-group-label">
+            תחנת עלייה (בהלוך)
+          </FormLabel>
+          <RadioGroup
+            id={"boardingStation"}
+            name={"boardingStation"}
+            aria-labelledby="demo-radio-buttons-group-label"
+            className="ChooseStation"
+            value={formik.values.boardingStation}
+            onChange={(e) => {
+              formik.handleChange(e);
+              formik.handleSubmit();
+            }}
+          >
+            <FormControlLabel
+              value="רכבת מרכז"
+              control={<Radio />}
+              label={`רכבת מרכז (₪${PRICE})`}
+            />
+            <FormControlLabel
+              value="חניון שפירים"
+              control={<Radio />}
+              label={`חניון שפירים - הנתיב המהיר (₪${PRICE})`}
+            />
+            <FormControlLabel
+              value="מחלף לטרון"
+              control={<Radio />}
+              label={`מחלף לטרון (₪${LATRUN_PRICE})`}
+            />
+            <FormControlLabel
+              value="אני נוסע/ת רק חזור"
+              control={<Radio />}
+              label="אני נוסע/ת רק חזור"
+            />
+          </RadioGroup>
+          <FormLabel id="alighting-station-radio-buttons-group">
+            תחנת ירידה (בחזור)
+          </FormLabel>
+          <RadioGroup
+            id={"alightingStation"}
+            name={"alightingStation"}
+            aria-labelledby="alighting-station-radio-buttons-group"
+            className="ChooseStation"
+            value={formik.values.alightingStation}
+            onChange={(e) => {
+              formik.handleChange(e);
+              formik.handleSubmit();
+            }}
+          >
+            <FormControlLabel
+              value="רכבת מרכז"
+              control={<Radio />}
+              label={`רכבת מרכז (₪${PRICE})`}
+            />
+            <FormControlLabel
+              value="חניון שפירים"
+              control={<Radio />}
+              label={`חניון שפירים - הנתיב המהיר (₪${PRICE})`}
+            />
+            <FormControlLabel
+              value="מחלף לטרון"
+              control={<Radio />}
+              label={`מחלף לטרון (₪${LATRUN_PRICE})`}
+            />
+            <FormControlLabel
+              value="אני נוסע/ת רק הלוך"
+              control={<Radio />}
+              label="אני נוסע/ת רק הלוך"
+            />
+          </RadioGroup>
+          <div className={"SendMailSettings"}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  defaultChecked
+                  id={"sendMail"}
+                  name={"sendMail"}
+                  value={formik.values.sendMail}
+                  onChange={(e) => {
+                    formik.handleChange(e);
+                    formik.handleSubmit();
+                  }}
+                />
+              }
+              label="שליחת מייל אישור עם פרטי ההסעה"
+            />
+          </div>
+        </FormControl>
       </form>
     </div>
   );

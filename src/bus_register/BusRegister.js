@@ -121,7 +121,6 @@ function BusRegister() {
         alightingStation: formik.values.alightingStation,
         boardingStation: formik.values.boardingStation,
         numPassengers: formik.values.numPassengers,
-        email: formik.values.email,
         phone: formik.values.phone,
         sendMail: formik.values.sendMail,
       },
@@ -245,28 +244,33 @@ function BusRegister() {
       });
       getDetails(user.email).then((details) => {
         if (details) {
-          formik.setValues({
-            alightingStation:
-              details.alightingStation !== undefined
-                ? details.alightingStation
-                : formik.values.alightingStation,
-            boardingStation:
-              details.boardingStation !== undefined
-                ? details.boardingStation
-                : formik.values.boardingStation,
-            sendMail:
-              details.sendMail !== undefined
-                ? details.sendMail
-                : formik.values.sendMail,
-            phone:
-              details.phone !== undefined ? details.phone : formik.values.phone,
-            numPassengers:
-              details.numPassengers !== undefined
-                ? details.numPassengers
-                : formik.values.numPassengers,
-            saveDetails: formik.values.saveDetails,
-            name: details.name !== undefined ? details.name : user.displayName,
-            email: user.email,
+          checkAvailablePlaces().then((arrayLen) => {
+            formik.setValues({
+              alightingStation:
+                details.alightingStation !== undefined
+                  ? details.alightingStation
+                  : formik.values.alightingStation,
+              boardingStation:
+                details.boardingStation !== undefined
+                  ? details.boardingStation
+                  : formik.values.boardingStation,
+              sendMail:
+                details.sendMail !== undefined
+                  ? details.sendMail
+                  : formik.values.sendMail,
+              phone:
+                details.phone !== undefined
+                  ? details.phone
+                  : formik.values.phone,
+              numPassengers:
+                details.numPassengers !== undefined
+                  ? Math.min(details.numPassengers, arrayLen - 1)
+                  : formik.values.numPassengers,
+              saveDetails: formik.values.saveDetails,
+              name:
+                details.name !== undefined ? details.name : user.displayName,
+              email: user.email,
+            });
           });
         }
       });

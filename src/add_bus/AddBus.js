@@ -88,9 +88,7 @@ function AddBus() {
     },
   });
   const addBusToDB = (busInfo) => {
-    addDoc(collection(db, "Buses"), busInfo).then(() =>
-      console.log("uploaded bus!")
-    );
+    addDoc(collection(db, "Buses"), busInfo).then();
   };
   return (
     <div className="BusRegister">

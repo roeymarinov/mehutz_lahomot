@@ -560,8 +560,32 @@
     align-items: flex-start;
     direction: rtl;
 }
-
+.SettingsForm {
+    display: flex;
+    flex-direction: column;
+    margin-right: 7vw;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
 .SettingsLink {
     color: black;
     text-decoration: none;
+}
+
+.SettingsField {
+    margin-right: 15px;
+}
+
+.SendMailSettings .MuiFormControlLabel-root{
+    margin-right: 0;
+
+}
+
+.FormSubtitle {
+    text-align: right;
+    margin-right: 7vw;
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #696969;
+    font-size: 20px;
 }
