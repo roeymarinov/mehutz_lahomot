@@ -421,7 +421,7 @@ function Home({
           rel="noopener noreferrer"
           className={"MemberLink"}
         >
-          להרשמה כמנוי
+          לרכישת מנוי
         </a>
       </div>
       <Dialog
