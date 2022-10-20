@@ -366,14 +366,14 @@ function Home({
               <p>מחלף לטרון</p>
               <div className="NavigationLogoLinks">
                 <a
-                  href={"https://goo.gl/maps/1G33UvGpp2kkDHDW6"}
+                  href={"https://goo.gl/maps/kjvFeacqo4zjmPn48"}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <img src={googleMaps} alt={""} className="NavigationLogo" />
                 </a>
                 <a
-                  href={"https://waze.com/ul/hsv8vhhh6z"}
+                  href={"https://waze.com/ul/hsv8v5gwh6"}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -408,11 +408,21 @@ function Home({
       </div>
       <p className="ContentSubtitle">מחירון:</p>
       <div className="GameCard">
-        <ul>
+        <ul className={"PriceList"}>
           <li>כיוון אחד - ₪20</li>
           <li>כיוון אחד (מחלף לטרון) - ₪15</li>
           <li>מנוי שנתי - ₪330</li>
         </ul>
+        <a
+          href={
+            "https://docs.google.com/forms/d/1e59PSkYThOuOUENK7i75eNLVGsZzMWUZPMGeQPX5XY8/viewform?edit_requested=true"
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          className={"MemberLink"}
+        >
+          להרשמה כמנוי
+        </a>
       </div>
       <Dialog
         open={notSignedDialogOpen}

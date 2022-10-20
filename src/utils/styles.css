@@ -87,7 +87,8 @@
     color: #e7e7e7;
 }
 
-.GameCard ul {
+.PriceList {
+    margin-bottom: 5px;
 }
 
 .GameCard ul li {
@@ -540,6 +541,13 @@
 
 .TicketsLink {
     color: blue;
+}
+
+.MemberLink {
+    color: blue;
+    display: flex;
+    align-self: center;
+    margin-bottom: 10px;
 }
 
 .NotSignedDialog {

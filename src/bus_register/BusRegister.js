@@ -381,14 +381,14 @@ function BusRegister() {
             <p>מחלף לטרון: {busTime.latrun} (משוער)</p>
             <div className="NavigationLogoLinks">
               <a
-                href={"https://goo.gl/maps/1G33UvGpp2kkDHDW6"}
+                href={"https://goo.gl/maps/kjvFeacqo4zjmPn48"}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <img src={googleMaps} alt={""} className="NavigationLogo" />
               </a>
               <a
-                href={"https://waze.com/ul/hsv8vhhh6z"}
+                href={"https://waze.com/ul/hsv8v5gwh6"}
                 target="_blank"
                 rel="noopener noreferrer"
               >
