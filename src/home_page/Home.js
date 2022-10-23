@@ -262,7 +262,7 @@ function Home({
                 disabled={buses[index].isBusFull}
                 onClick={() => {
                   if (user) {
-                    navigate("/bus", { state: buses[0] });
+                    navigate("/bus", { state: buses[index] });
                   } else {
                     setNotSignedDialogOpen(true);
                   }
