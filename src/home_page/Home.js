@@ -8,6 +8,8 @@ import {
   collection,
   getDocs,
   Timestamp,
+  doc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { AuthenticatedUserContext } from "../utils/UserProvider";
@@ -62,7 +64,9 @@ function Home({
       date.toDate().getMinutes().toString().padStart(2, "0")
     );
   };
+
   const [displayAsAdmin, setDisplayAsAdmin] = useState(false);
+  const [deleteBusDialogOpen, setDeleteBusDialogOpen] = useState(false);
   const [loadingBuses, setLoadingBuses] = useState(true);
   const BusesRef = collection(db, "Buses");
   const nowDate = Timestamp.now().toDate();
@@ -222,7 +226,29 @@ function Home({
               ? "ההסעה מלאה"
               : "לפרטים והרשמה"}
           </button>
+          {displayAsAdmin && (
+            <button className="RegisterButton" onClick={() => {}}>
+              עריכת הסעה
+            </button>
+          )}
+          {displayAsAdmin && (
+            <button
+              className="RegisterButton"
+              onClick={() => {
+                setDeleteBusDialogOpen(true);
+              }}
+            >
+              מחיקת הסעה
+            </button>
+          )}
         </div>
+      )}
+      {displayAsAdmin && (
+        <DeleteBusDialog
+          open={deleteBusDialogOpen}
+          setOpen={setDeleteBusDialogOpen}
+          bus={buses[0]}
+        />
       )}
       {displayAsAdmin && <p className="ContentSubtitle">הסעות נוספות:</p>}
       {displayAsAdmin &&
@@ -275,6 +301,28 @@ function Home({
                   ? "ההסעה מלאה"
                   : "לפרטים והרשמה"}
               </button>
+              {displayAsAdmin && (
+                <button className="RegisterButton" onClick={() => {}}>
+                  עריכת הסעה
+                </button>
+              )}
+              {displayAsAdmin && (
+                <button
+                  className="RegisterButton"
+                  onClick={() => {
+                    setDeleteBusDialogOpen(true);
+                  }}
+                >
+                  מחיקת הסעה
+                </button>
+              )}
+              {displayAsAdmin && (
+                <DeleteBusDialog
+                  open={deleteBusDialogOpen}
+                  setOpen={setDeleteBusDialogOpen}
+                  bus={buses[index]}
+                />
+              )}
             </div>
           );
         })}
@@ -446,5 +494,61 @@ function Home({
     </div>
   );
 }
+function DeleteBusDialog({ open, setOpen, bus }) {
+  const [deleteSuccessDialogOpen, setDeleteSuccessDialogOpen] = useState(false);
 
+  async function deleteBus(bus) {
+    await deleteDoc(doc(db, "Buses", bus.busID));
+  }
+
+  return (
+    <div>
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <div className={"NotSignedDialog"}>
+          <p className={"SignUpInfo"}>
+            האם אתם בטוחים שברצונכם למחוק את ההסעה? לא ניתן לבטל פעולה זו
+          </p>
+          <div className={"ConfirmCancel"}>
+            <button
+              className="SubmitButton"
+              onClick={() => {
+                deleteBus(bus).then(() => {
+                  setOpen(false);
+                  setDeleteSuccessDialogOpen(true);
+                });
+              }}
+            >
+              מחיקה
+            </button>
+            <button
+              className="SubmitButton"
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
+              חזרה
+            </button>
+          </div>
+        </div>
+      </Dialog>
+      <Dialog
+        open={deleteSuccessDialogOpen}
+        onClose={() => setDeleteSuccessDialogOpen(false)}
+      >
+        <div className="SubmitDialog">
+          <p className="SuccessMessage">מחיקה בוצעה בהצלחה! </p>
+          <button
+            className="SubmitButton"
+            onClick={() => {
+              setDeleteSuccessDialogOpen(false);
+              window.location.reload();
+            }}
+          >
+            למסך הבית
+          </button>
+        </div>
+      </Dialog>
+    </div>
+  );
+}
 export default Home;

@@ -1275,6 +1275,34 @@ async function createBusSheet(spreadsheetId, title) {
   }
 }
 
+async function deleteBusSheet(spreadsheetId, title) {
+  const client = await authorize();
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const requests = [];
+  // Change the spreadsheet's title.
+  const sheetId = await getSheetId(SPREADSHEET_ID, "'" + title + "'!B:B");
+
+  requests.push({
+    deleteSheet: {
+      sheetId,
+    },
+  });
+
+  try {
+    return await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        includeSpreadsheetInResponse: false,
+        requests: requests,
+        responseIncludeGridData: false,
+        responseRanges: [],
+      },
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
+}
+
 async function appendRows(spreadsheetId, range, valueInputOption, values) {
   const client = await authorize();
   const service = google.sheets({ version: "v4", auth: client });
@@ -1645,4 +1673,21 @@ exports.registerUser = functions.firestore
 
     // You must return a Promise when performing asynchronous tasks inside a Functions such as
     // writing to Firestore.
+  });
+
+exports.deleteBusSheet = functions.firestore
+  .document("/Buses/{busId}")
+  .onDelete((snap, context) => {
+    const data = snap.data();
+    const title =
+      data.opponent +
+      " " +
+      data.date.toDate().getDate() +
+      "/" +
+      (parseInt(data.date.toDate().getMonth()) + 1).toString();
+
+    return authorize()
+      .then(() => deleteBusSheet(SPREADSHEET_ID, title))
+      .then(() => {})
+      .catch(console.error);
   });

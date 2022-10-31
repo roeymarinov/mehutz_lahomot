@@ -39,6 +39,7 @@ function Header({
         // Sign-out successful.
         closeProfileMenu();
         nav("/");
+        window.location.reload();
       })
       .catch((error) => {
         // An error happened.
