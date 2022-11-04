@@ -83,6 +83,7 @@ function Home({
         const busID = doc.id;
         const data = doc.data();
         const opponentName = data.opponent;
+        const maxPassengers = data.max_passengers;
         const busTimeDayjs = dayjs(data.bus_time.toDate());
         const mahirTime = busTimeDayjs.add(15, "m");
         const latrunTime = busTimeDayjs.add(35, "m");
@@ -107,6 +108,7 @@ function Home({
         }
         busesArray.push({
           opponentName: opponentName,
+          maxPassengers: maxPassengers,
           gameDate: gameDate,
           gameTime: gameTime,
           gameDay: gameDay,
@@ -198,6 +200,7 @@ function Home({
               <p>משחק: {buses[0].gameTime}</p>
               <p>הסעה: {buses[0].busTime.merkaz}</p>
               <p>פיס ארנה</p>
+              {displayAsAdmin && <p>מקס' נוסעים: {buses[0].maxPassengers}</p>}
               <a
                 href={"https://tickets.hapoel.co.il/"}
                 target="_blank"
@@ -273,6 +276,9 @@ function Home({
                   <p>משחק: {buses[index].gameTime}</p>
                   <p>הסעה: {buses[index].busTime.merkaz}</p>
                   <p>פיס ארנה</p>
+                  {displayAsAdmin && (
+                    <p>מקס' נוסעים: {buses[index].maxPassengers}</p>
+                  )}
                   <a
                     href={"https://tickets.hapoel.co.il/"}
                     target="_blank"
