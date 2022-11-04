@@ -1462,6 +1462,7 @@ exports.createNewBusSheet = functions.firestore
         "מרכז",
         "מהיר",
         "לטרון",
+        "שינוי אחרון",
       ],
     ];
 
@@ -1618,6 +1619,10 @@ exports.registerUser = functions.firestore
             userDetails.alightingStation === "מחלף לטרון"
               ? userDetails.numPassengers
               : "0";
+          const now = dayjs().toDate().toLocaleString("en-IL", {
+            hour12: false,
+            timeZone: "Asia/Jerusalem",
+          });
           const row = [
             [
               name,
@@ -1630,6 +1635,7 @@ exports.registerUser = functions.firestore
               merkaz,
               mahir,
               latrun,
+              now,
             ],
           ];
           updateUserDetails(email, row, title)
